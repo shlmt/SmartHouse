@@ -31,6 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapHub<SystemHub>("/systemHub");
 
 app.UseCors();
 
