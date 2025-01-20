@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SmartHomeServer.Classes;
 using System.Collections.Concurrent;
 
 namespace SmartHomeServer.Hubs
@@ -6,14 +7,14 @@ namespace SmartHomeServer.Hubs
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
-        public async Task ConnectHouse(string systemId, string data)
+        public async Task ConnectHouse(string systemId, Device[] devices)
         {
             if (SystemConnections.TryGetValue(systemId, out var pair) && pair.dashboards != null)
             {
                 SystemConnections[systemId] = (Context.ConnectionId, pair.dashboards);
                 foreach (var dashId in pair.dashboards)
                 {
-                    await Clients.Client(dashId).SendAsync("HouseConnected",data);
+                    await Clients.Client(dashId).SendAsync("HouseConnected",devices);
                 }
             }
             else
@@ -45,6 +46,7 @@ namespace SmartHomeServer.Hubs
                 await Clients.Caller.SendAsync("Connected", "No SYSTEM found for this systemId.");
             }
         }
+
         public async Task SendMessage(string systemId, string senderType, string message)
         {
 
@@ -64,17 +66,47 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendDataToSpecificDashboard(string systemId, string dashId, string data)
+        public async Task SendDataToSpecificDashboard(string systemId, string dashId, Device[] devices)
         {
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
                 if (pair.dashboards.Contains(dashId))
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveInitData", data);
+                    await Clients.Client(dashId).SendAsync("ReceiveInitData", devices);
                 }
                 else
                 {
                     await Clients.Caller.SendAsync("Error", "The specified dashboard is not connected under this systemId.");
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", "systemId not found.");
+            }
+        }
+
+        public async Task NotifyDataChange(string systemId, Operation action, Device deviceData)
+        {
+            if(deviceData == null)
+            {
+                await Clients.Caller.SendAsync("Error", "deviceData is null.");
+                return;
+            }
+            if (SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                if(pair.house != Context.ConnectionId)
+                {
+                    if(deviceData.Type != DeviceType.Actuator)
+                    {
+                        await Clients.Caller.SendAsync("Error", $"dashboard can't change {deviceData.Type} status.");
+                        return;
+                    }
+                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, deviceData);
+                }
+                foreach (var dashId in pair.dashboards)
+                {
+                    if(dashId != Context.ConnectionId)
+                        await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, deviceData);
                 }
             }
             else
