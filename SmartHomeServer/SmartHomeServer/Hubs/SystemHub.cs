@@ -94,9 +94,9 @@ namespace SmartHomeServer.Hubs
             }
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
-                if(pair.house != Context.ConnectionId)
+                if(pair.house != null && pair.house != Context.ConnectionId)
                 {
-                    if(deviceData.Type != DeviceType.Actuator)
+                    if(deviceData.Type != DeviceType.Actuator && action == Operation.Update)
                     {
                         await Clients.Caller.SendAsync("Error", $"dashboard can't change {deviceData.Type} status.");
                         return;
@@ -105,8 +105,7 @@ namespace SmartHomeServer.Hubs
                 }
                 foreach (var dashId in pair.dashboards)
                 {
-                    if(dashId != Context.ConnectionId)
-                        await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, deviceData);
+                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, deviceData);
                 }
             }
             else
