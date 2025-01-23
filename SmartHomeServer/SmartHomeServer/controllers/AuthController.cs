@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 namespace SmartHomeServer.controllers
 {
@@ -45,10 +46,10 @@ namespace SmartHomeServer.controllers
                 if(isPasswordValid)
                 {
                     user.Password = null;
-                    string token = generateJwtToken(user);
+                    string token = GenerateJwtToken(user);
                     Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true });
                     return Ok(user);
-               }
+                }
             }
             return NotFound();
         }
@@ -57,9 +58,15 @@ namespace SmartHomeServer.controllers
         [Route("register")]
         public async Task<ActionResult> Register([FromBody] RegisterUser registerUser)
         {
-            if(String.IsNullOrEmpty(registerUser.UserName) || String.IsNullOrEmpty(registerUser.Email))
+            if(String.IsNullOrEmpty(registerUser.UserName)
+                || String.IsNullOrEmpty(registerUser.Email)
+                || String.IsNullOrEmpty(registerUser.Password))
             {
                 return BadRequest();
+            }
+            if(GetStrengthPassword(registerUser.Password) < 3)
+            {
+                return BadRequest("the password is weak");
             }
             User newUser = new User()
             {
@@ -73,22 +80,29 @@ namespace SmartHomeServer.controllers
             };
             await _dbContext.Users.AddAsync(newUser);
             await _dbContext.SaveChangesAsync();
-            User user = await getUserById(newUser.Id);
+            User user = await GetUserById(newUser.Id);
             if(user != null)
             {
                 user.Password = null;
-                string token = generateJwtToken(user);
+                string token = GenerateJwtToken(user);
                 Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true });
+                return Ok(user);
             }
-            return Ok(user);
+            return StatusCode(500);
         }
 
-        private async Task<User> getUserById(Guid id)
+        private async Task<User> GetUserById(Guid id)
         {
             return await _dbContext.Users.FindAsync(id);
         }
 
-        private string generateJwtToken(User user)
+        private int GetStrengthPassword(string pass)
+        {
+            var result = Zxcvbn.Core.EvaluatePassword(pass);
+            return result.Score;
+        }
+
+        private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetSection("key").Value);
