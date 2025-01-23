@@ -3,7 +3,6 @@ import { makeAutoObservable, when } from "mobx"
 import Device from "../models/Device"
 import auth from "./auth"
 
-const systemId = '1234' // meantime
 const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
 const conn = new signalR.HubConnectionBuilder()
             .withUrl(url, { withCredentials:true })
@@ -17,11 +16,11 @@ class Devices {
         makeAutoObservable(this) 
         when(()=>auth.isLoggedIn,
             ()=>conn.start().then(() => {
-                conn.invoke("connectDashboard",systemId)
+                conn.invoke("connectDashboard")
                 
                 conn.on("Connected", (message) => {
                     console.log("dashboardConnected:",message)
-                    conn.invoke("SendMessage", systemId, "DASHBOARD", "Hello from DASHBOARD!");
+                    conn.invoke("SendMessage", "DASHBOARD", "Hello from DASHBOARD!");
                 })
                 conn.on("ReceiveInitData", (data) => {
                     this.devices = data
@@ -85,7 +84,7 @@ class Devices {
     causeDeviceUpdate = (device,action="add") => {
         let d = new Device(device)
         if(d instanceof Device && conn.state=='Connected')
-            conn?.invoke("NotifyDataChange", systemId, action, d)
+            conn?.invoke("NotifyDataChange", action, d)
                 .catch(err => console.error('NotifyDataChange error: '+err))
     }
 }

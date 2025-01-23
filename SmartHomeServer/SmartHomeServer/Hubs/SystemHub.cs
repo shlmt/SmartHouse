@@ -10,8 +10,14 @@ namespace SmartHomeServer.Hubs
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
-        public async Task ConnectHouse(string systemId, Device[] devices)
+        public async Task ConnectHouse(Device[] devices)
         {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
             if (SystemConnections.TryGetValue(systemId, out var pair) && pair.dashboards != null)
             {
                 SystemConnections[systemId] = (Context.ConnectionId, pair.dashboards);
@@ -27,8 +33,14 @@ namespace SmartHomeServer.Hubs
             await Clients.Caller.SendAsync("Connected", "house connected successfully.");
         }
 
-        public async Task ConnectDashboard(string systemId)
+        public async Task ConnectDashboard()
         {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
                 if (pair.house != null)
@@ -50,9 +62,14 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendMessage(string systemId, string senderType, string message)
+        public async Task SendMessage(string senderType, string message)
         {
-
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
                 if (senderType == "HOUSE" && pair.dashboards != null)
@@ -69,8 +86,14 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendDataToSpecificDashboard(string systemId, string dashId, Device[] devices)
+        public async Task SendDataToSpecificDashboard(string dashId, Device[] devices)
         {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
                 if (pair.dashboards.Contains(dashId))
@@ -88,9 +111,15 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task NotifyDataChange(string systemId, Operation action, Device deviceData)
+        public async Task NotifyDataChange(Operation action, Device deviceData)
         {
-            if(deviceData == null)
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
+            if (deviceData == null)
             {
                 await Clients.Caller.SendAsync("Error", "deviceData is null.");
                 return;
@@ -119,8 +148,12 @@ namespace SmartHomeServer.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var systemId = SystemConnections.FirstOrDefault(x => x.Value.house == Context.ConnectionId || x.Value.dashboards.Contains(Context.ConnectionId)).Key;
-
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                return;
+            }
             if (!string.IsNullOrEmpty(systemId))
             {
                 var pair = SystemConnections[systemId];
@@ -151,7 +184,6 @@ namespace SmartHomeServer.Hubs
         public override Task OnConnectedAsync()
         {
             Console.WriteLine("UserConnected " + Context.ConnectionId);
-            Console.WriteLine(Context.User?.FindFirst(ClaimTypes.Role)?.Value);
             Console.WriteLine(Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return base.OnConnectedAsync();
         }
