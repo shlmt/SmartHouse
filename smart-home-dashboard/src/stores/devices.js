@@ -1,16 +1,21 @@
 import * as signalR from "@microsoft/signalr"
 import { makeAutoObservable, when } from "mobx"
+import Device from "../models/Device"
+import auth from "./auth"
 
 const systemId = '1234' // meantime
 const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
-const conn = new signalR.HubConnectionBuilder().withUrl(url).withAutomaticReconnect().build()
+const conn = new signalR.HubConnectionBuilder()
+            .withUrl(url, { withCredentials:true })
+            .withAutomaticReconnect()
+            .build()
 
 class Devices {
     _devices = []
 
     constructor() {
         makeAutoObservable(this) 
-        when(()=>true, // if user logged in
+        when(()=>auth.isLoggedIn,
             ()=>conn.start().then(() => {
                 conn.invoke("connectDashboard",systemId)
                 
@@ -78,8 +83,9 @@ class Devices {
     }
 
     causeDeviceUpdate = (device,action="add") => {
-        if(conn.state=='Connected')
-            conn?.invoke("NotifyDataChange", systemId, action, device)
+        let d = new Device(device)
+        if(d instanceof Device && conn.state=='Connected')
+            conn?.invoke("NotifyDataChange", systemId, action, d)
                 .catch(err => console.error('NotifyDataChange error: '+err))
     }
 }

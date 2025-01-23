@@ -47,7 +47,7 @@ namespace SmartHomeServer.controllers
                 {
                     user.Password = null;
                     string token = GenerateJwtToken(user);
-                    Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true });
+                    Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true, Secure = true });
                     return Ok(user);
                 }
             }
@@ -85,7 +85,7 @@ namespace SmartHomeServer.controllers
             {
                 user.Password = null;
                 string token = GenerateJwtToken(user);
-                Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true });
+                Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true, Secure = true });
                 return Ok(user);
             }
             return StatusCode(500);
@@ -110,7 +110,7 @@ namespace SmartHomeServer.controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, user.Role),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),

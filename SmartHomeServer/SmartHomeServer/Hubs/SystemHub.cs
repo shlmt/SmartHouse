@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using SmartHomeServer.Classes;
 using System.Collections.Concurrent;
+using System.Security.Claims;
 
 namespace SmartHomeServer.Hubs
 {
+    [Authorize]
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
@@ -148,6 +151,8 @@ namespace SmartHomeServer.Hubs
         public override Task OnConnectedAsync()
         {
             Console.WriteLine("UserConnected " + Context.ConnectionId);
+            Console.WriteLine(Context.User?.FindFirst(ClaimTypes.Role)?.Value);
+            Console.WriteLine(Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return base.OnConnectedAsync();
         }
 

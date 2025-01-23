@@ -6,12 +6,14 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router';
 import { Provider } from 'mobx-react';
 import devicesStore from "./stores/devices";
+import authStore from "./stores/auth";
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const stores = {
   devicesStore: devicesStore,
+  authStore: authStore
 };
 
 root.render(

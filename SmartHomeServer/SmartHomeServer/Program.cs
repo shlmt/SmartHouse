@@ -55,7 +55,6 @@ builder.Services
                 var token = "";
                 context.Request.Cookies.TryGetValue("X-Access-Token", out token);
                 context.Token = token;
-                Console.WriteLine(context.Token + " :token");
                 return Task.CompletedTask;
             }
         };
@@ -78,14 +77,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
+
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.MapHub<SystemHub>("/systemHub");
-
-app.UseCors();
 
 app.Run();
