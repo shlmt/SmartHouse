@@ -15,7 +15,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (SystemConnections.TryGetValue(systemId, out var pair) && pair.dashboards != null)
@@ -38,7 +38,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (SystemConnections.TryGetValue(systemId, out var pair))
@@ -67,7 +67,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (SystemConnections.TryGetValue(systemId, out var pair))
@@ -91,7 +91,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (SystemConnections.TryGetValue(systemId, out var pair))
@@ -116,7 +116,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (deviceData == null)
@@ -151,7 +151,7 @@ namespace SmartHomeServer.Hubs
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
             {
-                await Clients.Caller.SendAsync("Error", "invalid systemId. please login");
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
             if (!string.IsNullOrEmpty(systemId))
@@ -184,6 +184,7 @@ namespace SmartHomeServer.Hubs
         public override Task OnConnectedAsync()
         {
             Console.WriteLine("UserConnected " + Context.ConnectionId);
+            Console.WriteLine(Context.User?.FindFirst(ClaimTypes.Role)?.Value);
             Console.WriteLine(Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return base.OnConnectedAsync();
         }

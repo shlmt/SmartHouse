@@ -36,6 +36,10 @@ class Devices {
                 conn.on("ReceiveMessage", (message) => {
                     console.log(`ReceiveMessage: ${message}`)
                 })
+                conn.on("Auth Error", (message) => {
+                    auth.isLoggedIn = false
+                    console.error("Auth Error:", message)
+                })      
                 conn.on("Error", (message) => {
                     console.error("Error:", message)
                 })      

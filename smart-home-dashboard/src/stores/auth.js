@@ -11,12 +11,28 @@ axios.interceptors.response.use((response) => {
 })
 
 class Auth {
-    user = {}
-    isLoggedIn = false
+    _user = {}
+    _isLoggedIn = false
 
     constructor() {
         makeAutoObservable(this)
         this.isLoggedIn = JSON.parse(localStorage.getItem('isLoggedIn') ?? false)
+    }
+
+    get user() {
+        return this._user
+    }
+
+    get isLoggedIn(){
+        return this._isLoggedIn
+    }
+
+    set user(user) {
+        this._user = user
+    }
+
+    set isLoggedIn(isLoggedIn) {
+        this._isLoggedIn = isLoggedIn
     }
 
     login = async (username, password) => {
