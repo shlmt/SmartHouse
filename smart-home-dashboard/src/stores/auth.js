@@ -17,6 +17,7 @@ class Auth {
     constructor() {
         makeAutoObservable(this)
         this.isLoggedIn = JSON.parse(localStorage.getItem('isLoggedIn') ?? false)
+        this.user = {username: localStorage.getItem('userName'), role:'Standard'}
     }
 
     get user() {
@@ -35,15 +36,18 @@ class Auth {
         this._isLoggedIn = isLoggedIn
     }
 
-    login = async (username, password) => {
-        if(username && password){
-            const res = await axios.post('/login', {username,password}, {withCredentials:true})
+    login = async (email, password, rememberMe=false) => {
+        if(email && password){
+            const res = await axios.post('/login', {email,password}, {withCredentials:true})
             if(res?.status==200){
                 const user = new User(res.data)
                 if(user instanceof User){
                     this.user = user
                     this.isLoggedIn = true
-                    localStorage.setItem('isLoggedIn','true')
+                    if(rememberMe){
+                        localStorage.setItem('isLoggedIn','true')
+                        localStorage.setItem('userName',user.username)
+                    }
                 }
             }
             else{
@@ -52,6 +56,23 @@ class Auth {
             }
         }
     }
+
+    register = async (username, email, password) => {
+        if(email && username && password){
+            const res = await axios.post('/register', {username,email,password}, {withCredentials:true})
+            if(res?.status==200){
+                const user = new User(res.data)
+                if(user instanceof User){
+                    this.user = user
+                    this.isLoggedIn = true
+                }
+            }
+            else {
+                console.log("error in register")
+            }
+        }
+    }
+
 }
 
 export default new Auth()
