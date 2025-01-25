@@ -35,11 +35,11 @@ namespace SmartHomeServer.controllers
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] LoginUser loginUser)
         {
-            if(String.IsNullOrEmpty(loginUser.UserName) || String.IsNullOrEmpty(loginUser.Password))
+            if(String.IsNullOrEmpty(loginUser.Email) || String.IsNullOrEmpty(loginUser.Password))
             {
                 return BadRequest("username & password can't be null or empty");
             }
-            User user = await _dbContext.Users.Where(u => u.Username == loginUser.UserName).FirstOrDefaultAsync();
+            User user = await _dbContext.Users.Where(u => u.Email == loginUser.Email).FirstOrDefaultAsync();
             if (user != null)
             {
                 bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password);

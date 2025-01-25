@@ -1,8 +1,11 @@
-﻿namespace SmartHomeServer.Classes
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SmartHomeServer.Classes
 {
     public class LoginUser
     {
-        public string UserName { get; set;}
+        [EmailAddress]
+        public string Email { get; set;}
         public string Password { get; set;}
     }
 }
