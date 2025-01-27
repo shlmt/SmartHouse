@@ -6,11 +6,11 @@ using System.Security.Claims;
 
 namespace SmartHomeServer.Hubs
 {
-    [Authorize]
+    //[Authorize]
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
-        public async Task ConnectHouse(Device[] devices)
+        public async Task ConnectHouse(Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
@@ -23,7 +23,7 @@ namespace SmartHomeServer.Hubs
                 SystemConnections[systemId] = (Context.ConnectionId, pair.dashboards);
                 foreach (var dashId in pair.dashboards)
                 {
-                    await Clients.Client(dashId).SendAsync("HouseConnected",devices);
+                    await Clients.Client(dashId).SendAsync("HouseConnected", new { actuators, sensors, meters });
                 }
             }
             else
@@ -86,7 +86,7 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendDataToSpecificDashboard(string dashId, Device[] devices)
+        public async Task SendDataToSpecificDashboard(string dashId, Actuator[] devices, MonitorDevice[] sensors, MonitorDevice[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
@@ -98,7 +98,7 @@ namespace SmartHomeServer.Hubs
             {
                 if (pair.dashboards.Contains(dashId))
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveInitData", devices);
+                    await Clients.Client(dashId).SendAsync("ReceiveInitData", new { devices, sensors, meters });
                 }
                 else
                 {
@@ -111,7 +111,7 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task NotifyDataChange(Operation action, Device deviceData)
+        public async Task NotifyActuatorChange(Operation action, Actuator deviceData)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
@@ -128,16 +128,11 @@ namespace SmartHomeServer.Hubs
             {
                 if(pair.house != null && pair.house != Context.ConnectionId)
                 {
-                    if(deviceData.Type != DeviceType.Actuator && action == Operation.Update)
-                    {
-                        await Clients.Caller.SendAsync("Error", $"dashboard can't change {deviceData.Type} status.");
-                        return;
-                    }
-                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, deviceData);
+                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, DeviceType.Actuator.ToString(), deviceData);
                 }
                 foreach (var dashId in pair.dashboards)
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, deviceData);
+                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, DeviceType.Actuator.ToString(), deviceData);
                 }
             }
             else
@@ -146,6 +141,40 @@ namespace SmartHomeServer.Hubs
             }
         }
 
+        public async Task NotifyChange(Operation action, DeviceType type, MonitorDevice data)
+        {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (String.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
+                return;
+            }
+            if (data == null)
+            {
+                await Clients.Caller.SendAsync("Error", "data is null.");
+                return;
+            }
+            if (SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                if (pair.house != Context.ConnectionId)
+                {
+                    if(action == Operation.Update)
+                    {
+                        await Clients.Caller.SendAsync("Error", $"Dashboard can't update {type} data.");
+                        return;
+                    }
+                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, type.ToString(), data);
+                }
+                foreach (var dashId in pair.dashboards)
+                {
+                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, type.ToString(), data);
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", "systemId not found.");
+            }
+        }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

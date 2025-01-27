@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr"
 import { makeAutoObservable, when } from "mobx"
-import Device from "../models/Device"
 import auth from "./auth"
+import Actuator from "../models/Device"
 
 const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
 const conn = new signalR.HubConnectionBuilder()
@@ -10,9 +10,11 @@ const conn = new signalR.HubConnectionBuilder()
             .build()
 
 class Devices {
-    _devices = []
+    _actuators = []
+    _sensors = []
+    _meters = []
 
-    constructor() {
+   constructor() {
         makeAutoObservable(this) 
         when(()=>auth.isLoggedIn,
             ()=>conn.start().then(() => {
@@ -20,14 +22,17 @@ class Devices {
                 
                 conn.on("Connected", (message) => {
                     console.log("dashboardConnected:",message)
-                    conn.invoke("SendMessage", "DASHBOARD", "Hello from DASHBOARD!");
                 })
                 conn.on("ReceiveInitData", (data) => {
-                    this.devices = data
+                    this.actuators = data.actuators ?? []
+                    this.sensors = data.sensors ?? []
+                    this.meters = data.meters ?? []
                     console.log(`ReceiveInitData:`,data)
                 })
                 conn.on("HouseConnected", (data) => {
-                    this.devices = data
+                    this.actuators = data.actuators ?? []
+                    this.sensors = data.sensors ?? []
+                    this.meters = data.meters ?? []
                     console.log('HouseConnected',data)
                 })
                 conn.on("HouseDisconnected", (message) => {
@@ -44,52 +49,78 @@ class Devices {
                     console.error("Error:", message)
                 })      
                         
-                conn.on("ReceiveDataChangeNotification", (action, device) => {                    
-                    console.log(`Action ${action} on childId: ${device.id}`, device)
+                conn.on("ReceiveDataChangeNotification", (action, type, device) => {                    
+                    console.log(action, type, device)
+                    const typeMap = {
+                        Actuator: this.actuators,
+                        Meter: this.meters,
+                        Sensor: this.sensors,
+                    }
+
+                    const targetArray = typeMap[type]
+                    if (!targetArray) {
+                        console.log("Error ReceiveDataChangeNotification: Unknown type:", type)
+                        return
+                    }                
+                
                     switch(action){
                         case "Add":
-                            if(device.id)
-                                this.devices.push(device)
+                            if (device.id) targetArray.push(device)
                             break
                         case "Remove":
-                            this.devices = this.devices.filter(d => d.id != device.id)
+                            typeMap[type] = targetArray.filter(d => d.id !== device.id)
                             break
                         case "Update":
-                            this.devices = this.devices.map(d => d.id == device.id ? device : d)
+                            typeMap[type] = targetArray.map(d => d.id === device.id ? device : d)
                             break
                         default:
-                            console.log("no action")
+                            console.log("Error ReceiveDataChangeNotification: Unknown action :",action)
                     }
                 })
             }).catch(err => console.error('connection error: '+err))
         )
     }
 
-    set devices(devices){
-        this._devices = devices
+    set actuators(actuators){
+        this._actuators = actuators
     }
 
-    get devices(){
-        return this._devices
+    get actuators(){
+        return this._actuators
     }
 
-    get actuatorsDevices() {
-        return this.devices.filter(device => device.type === 'Actuator')
+    set sensors(sensors){
+        this._sensors = sensors
     }
 
-    get sensorsDevices() {
-        return this.devices.filter(device => device.type === 'Sensor')
+    get sensors(){
+        return this._sensors
     }
 
-    get metersDevices() {
-        return this.devices.filter(device => device.type === 'Meter')
+    set meters(meters){
+        this._meters = meters
     }
 
-    causeDeviceUpdate = (device,action="add") => {
-        let d = new Device(device)
-        if(d instanceof Device && conn.state=='Connected')
-            conn?.invoke("NotifyDataChange", action, d)
-                .catch(err => console.error('NotifyDataChange error: '+err))
+    get meters(){
+        return this._meters
+    }
+
+    // get lightActuators() {
+    //     return this.actuators.filter(device => device.name.toLowerCase() === 'light')
+    // }
+
+    causeDeviceUpdate = (device,type,action="add") => {
+        if(type.toLowerCase()=='actuator') {
+            let d = new Actuator(device)
+            if(d instanceof Actuator && conn.state=='Connected')
+                conn?.invoke("NotifyActuatorChange", action, device)
+                    .catch(err => console.error('NotifyActuatorChange error: '+err))
+        }
+        else {
+            if(conn.state=='Connected')
+                conn?.invoke("NotifyChange", action, type, device)
+                    .catch(err => console.error('NotifyChange error: '+err))
+        }       
     }
 }
 
