@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace SmartHomeServer.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
@@ -86,7 +86,7 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendDataToSpecificDashboard(string dashId, Actuator[] devices, MonitorDevice[] sensors, MonitorDevice[] meters)
+        public async Task SendDataToSpecificDashboard(string dashId, Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (String.IsNullOrEmpty(systemId))
@@ -98,7 +98,7 @@ namespace SmartHomeServer.Hubs
             {
                 if (pair.dashboards.Contains(dashId))
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveInitData", new { devices, sensors, meters });
+                    await Clients.Client(dashId).SendAsync("ReceiveInitData", new { actuators, sensors, meters });
                 }
                 else
                 {
