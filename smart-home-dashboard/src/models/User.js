@@ -4,6 +4,7 @@ class User{
         this.username = username
         this.email = email
         this.role = role
+        this.creditCard = undefined
     }
 }
 

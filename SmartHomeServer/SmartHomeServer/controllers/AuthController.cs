@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
 
 namespace SmartHomeServer.controllers
 {
@@ -25,10 +24,20 @@ namespace SmartHomeServer.controllers
 
         [Authorize]
         [HttpGet]
-        [Route("/")]
-        public async Task<ActionResult> Hi()
+        [Route("")]
+        public async Task<ActionResult> MyDetails()
         {
-            return Ok(":)");
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!String.IsNullOrEmpty(userId))
+            {
+                User user = await GetUserById(new Guid(userId));
+                if(user != null)
+                {
+                    user.Password = null;
+                    return Ok(user);
+                }
+            }
+            return Unauthorized();
         }
 
         [HttpPost]
@@ -47,7 +56,9 @@ namespace SmartHomeServer.controllers
                 {
                     user.Password = null;
                     string token = GenerateJwtToken(user);
-                    Response.Cookies.Append("X-Access-Token", token, new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None });
+                    var options = new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None };
+                    if (loginUser.RememberMe) options.Expires = DateTime.UtcNow.AddDays(7);
+                    Response.Cookies.Append("X-Access-Token", token, options);
                     return Ok(user);
                 }
             }
@@ -89,6 +100,20 @@ namespace SmartHomeServer.controllers
                 return Ok(user);
             }
             return StatusCode(500);
+        }
+
+        [HttpGet]
+        [Route("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            Response.Cookies.Append("X-Access-Token", "", new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(-1),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
+            return Ok();
         }
 
         private async Task<User> GetUserById(Guid id)

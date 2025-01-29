@@ -11,13 +11,12 @@ axios.interceptors.response.use((response) => {
 })
 
 class Auth {
-    _user = {}
-    _isLoggedIn = false
+    _user = JSON.parse(sessionStorage.getItem('user') ?? '{}')
+    _isLoggedIn = this._user.username
 
     constructor() {
         makeAutoObservable(this)
-        this.isLoggedIn = JSON.parse(localStorage.getItem('isLoggedIn') ?? false)
-        this.user = {username: localStorage.getItem('userName'), role:'Standard'}
+        this.getUserDetails()
     }
 
     get user() {
@@ -36,23 +35,31 @@ class Auth {
         this._isLoggedIn = isLoggedIn
     }
 
+    getUserDetails = async () => {
+        if(this.user.username) return
+        const res = await axios.get('/', {withCredentials:true})
+        if(res?.status==200){
+            const user = new User(res.data)
+            if(user instanceof User){
+                this.user = user
+                this.isLoggedIn = true
+                sessionStorage.setItem('user',JSON.stringify(user))
+            }
+        }
+    }
+
     login = async (email, password, rememberMe=false) => {
         if(email && password){
-            const res = await axios.post('/login', {email,password}, {withCredentials:true})
+            const res = await axios.post('/login', {email,password,rememberMe}, {withCredentials:true})
             if(res?.status==200){
                 const user = new User(res.data)
                 if(user instanceof User){
                     this.user = user
                     this.isLoggedIn = true
-                    if(rememberMe){
-                        localStorage.setItem('isLoggedIn','true')
-                        localStorage.setItem('userName',user.username)
-                    }
                 }
             }
             else{
                 console.log("error in login")
-                localStorage.removeItem('isLoggedIn')
             }
         }
     }
@@ -70,6 +77,17 @@ class Auth {
             else {
                 console.log("error in register")
             }
+        }
+    }
+
+    logout = async()=>{
+        const res = await axios.get('/logout')
+        if(res?.status==200){
+            this.isLoggedIn = false
+            console.log('logout')
+        }
+        else {
+            console.log("error in logout")
         }
     }
 

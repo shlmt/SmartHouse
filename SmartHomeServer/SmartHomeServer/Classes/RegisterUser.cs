@@ -11,6 +11,5 @@ namespace SmartHomeServer.Classes
         public string Email { get; set;}
         public string? Coordinates { get; set; }
 
-
     }
 }
