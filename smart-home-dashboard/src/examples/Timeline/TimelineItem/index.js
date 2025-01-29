@@ -34,12 +34,12 @@ function TimelineItem({ color, icon, title, dateTime, description, badges, lastI
   const isDark = useTimeline();
 
   const renderBadges =
-    badges.length > 0
+    badges?.length > 0
       ? badges.map((badge, key) => {
           const badgeKey = `badge-${key}`;
 
           return (
-            <SoftBox key={badgeKey} mr={key === badges.length - 1 ? 0 : 0.5}>
+            <SoftBox key={badgeKey} mr={key === badges?.length - 1 ? 0 : 0.5}>
               <SoftBadge color={color} size="xs" badgeContent={badge} container />
             </SoftBox>
           );
@@ -80,7 +80,7 @@ function TimelineItem({ color, icon, title, dateTime, description, badges, lastI
             </SoftTypography>
           ) : null}
         </SoftBox>
-        {badges.length > 0 ? (
+        {badges?.length > 0 ? (
           <SoftBox display="flex" pb={lastItem ? 1 : 2}>
             {renderBadges}
           </SoftBox>

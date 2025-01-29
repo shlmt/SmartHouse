@@ -25,7 +25,7 @@ import Icon from "@mui/material/Icon";
 import SoftBox from "components/SoftBox";
 import SoftTypography from "components/SoftTypography";
 
-function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction }) {
+function MiniStatisticsCard({ bgColor="white", title= { fontWeight: "medium", text: ""}, count, percentage, icon, direction="right" }) {
   return (
     <Card>
       <SoftBox bgColor={bgColor} variant="gradient">

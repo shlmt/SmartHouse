@@ -38,7 +38,7 @@ import MediaPlayer from "layouts/virtual-reality/components/MediaPlayer";
 import Messages from "layouts/virtual-reality/components/Messages";
 
 // Images
-import team1 from "assets/images/team-1.jpg";
+import team1 from "assets/images/team-2.jpg";
 import sunCloud from "assets/images/small-logos/icon-sun-cloud.png";
 
 function VRInfo() {

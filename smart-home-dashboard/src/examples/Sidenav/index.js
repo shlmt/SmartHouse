@@ -42,6 +42,7 @@ import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Soft UI Dashboard React context
 import { useSoftUIController, setMiniSidenav } from "context";
+import zIndex from "@mui/material/styles/zIndex";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useSoftUIController();
@@ -137,7 +138,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           right={0}
           p={1.625}
           onClick={closeSidenav}
-          sx={{ cursor: "pointer" }}
+          sx={{ cursor: "pointer",zIndex:'5000' }}
         >
           <SoftTypography variant="h6" color="secondary">
             <Icon sx={{ fontWeight: "bold" }}>close</Icon>
@@ -146,10 +147,10 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         <SoftBox component={NavLink} to="/" display="flex" alignItems="center">
           {brand && <SoftBox component="img" src={brand} alt="Soft UI Logo" width="2rem" />}
           <SoftBox
-            width={!brandName && "100%"}
+            width={!brand && "100%"}
             sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
           >
-            <SoftTypography component="h6" variant="button" fontWeight="medium">
+            <SoftTypography component="h6" variant="button" fontWeight="bold" color='dark'>
               {brandName}
             </SoftTypography>
           </SoftBox>
@@ -158,18 +159,17 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       <Divider />
       <List>{renderRoutes}</List>
       <SoftBox pt={2} my={2} mx={2} mt="auto">
-        <SidenavCard />
+        {/* <SidenavCard /> */}
         <SoftBox mt={2}>
           <SoftButton
             component="a"
-            href="https://creative-tim.com/product/soft-ui-dashboard-pro-react"
-            target="_blank"
+            href="/logout"
             rel="noreferrer"
             variant="gradient"
-            color={color}
+            color='light'
             fullWidth
           >
-            upgrade to pro
+            Logout
           </SoftButton>
         </SoftBox>
       </SoftBox>

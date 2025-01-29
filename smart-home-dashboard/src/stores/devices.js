@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr"
 import { makeAutoObservable, when } from "mobx"
 import auth from "./auth"
-import Actuator from "../models/Device"
+import Actuator from "../models/Actuator"
 
 const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
 const conn = new signalR.HubConnectionBuilder()
@@ -51,30 +51,19 @@ class Devices {
                         
                 conn.on("ReceiveDataChangeNotification", (action, type, device) => {                    
                     console.log(action, type, device)
-                    const typeMap = {
-                        Actuator: this.actuators,
-                        Meter: this.meters,
-                        Sensor: this.sensors,
-                    }
-
-                    const targetArray = typeMap[type]
-                    if (!targetArray) {
-                        console.log("Error ReceiveDataChangeNotification: Unknown type:", type)
-                        return
-                    }                
-                
-                    switch(action){
+                    if (device.id) switch(action){
                         case "Add":
-                            if (device.id) targetArray.push(device)
+                            this[type.toLowerCase()+'s'].push(device)
                             break
-                        case "Remove":
-                            typeMap[type] = targetArray.filter(d => d.id !== device.id)
-                            break
-                        case "Update":
-                            typeMap[type] = targetArray.map(d => d.id === device.id ? device : d)
-                            break
+                            case "Remove":
+                                this[type.toLowerCase() + 's'] = this[type.toLowerCase() + 's'].filter(d => d.id !== device.id)
+                                break
+                            case "Update":
+                                const index = this[type.toLowerCase() + 's'].findIndex(d => d.id === device.id)
+                                if (index !== -1) this[type.toLowerCase() + 's'][index] = { ...device }
+                                break
                         default:
-                            console.log("Error ReceiveDataChangeNotification: Unknown action :",action)
+                            console.log("Error ReceiveDataChangeNotification: Unknown action :",action)                        
                     }
                 })
             }).catch(err => console.error('connection error: '+err))
@@ -105,11 +94,12 @@ class Devices {
         return this._meters
     }
 
-    // get lightActuators() {
-    //     return this.actuators.filter(device => device.name.toLowerCase() === 'light')
-    // }
+    get lightActuators() {
+        return this.actuators.filter(device => device.name.toLowerCase() === 'light')
+    }
 
     causeDeviceUpdate = (device,type,action="add") => {
+        console.log('causeDeviceUpdate',device,type,action);
         if(type.toLowerCase()=='actuator') {
             let d = new Actuator(device)
             if(d instanceof Actuator && conn.state=='Connected')

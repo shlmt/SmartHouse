@@ -32,6 +32,7 @@ import SoftTypography from "components/SoftTypography";
 // Soft UI Dashboard React base styles
 import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
+import { menuImage } from "examples/Items/NotificationItem/styles";
 
 function ProfileInfoCard({ title, description, info, social, action }) {
   const labels = [];
@@ -67,26 +68,36 @@ function ProfileInfoCard({ title, description, info, social, action }) {
   ));
 
   // Render the card social media icons
-  const renderSocial = social.map(({ link, icon, color }) => (
-    <SoftBox
-      key={color}
-      component="a"
-      href={link}
-      target="_blank"
-      rel="noreferrer"
-      fontSize={size.lg}
-      color={socialMediaColors[color].main}
-      pr={1}
-      pl={0.5}
-      lineHeight={1}
-    >
-      {icon}
-    </SoftBox>
-  ));
+  // const renderSocial = social.map(({ link, icon, color }) => (
+  //   <SoftBox
+  //     key={color}
+  //     component="a"
+  //     href={link}
+  //     target="_blank"
+  //     rel="noreferrer"
+  //     fontSize={size.lg}
+  //     color={socialMediaColors[color].main}
+  //     pr={1}
+  //     pl={0.5}
+  //     lineHeight={1}
+  //   >
+  //     {icon}
+  //   </SoftBox>
+  // ));
 
   return (
     <Card sx={{ height: "100%" }}>
       <SoftBox display="flex" justifyContent="space-between" alignItems="center" pt={2} px={2}>
+        <SoftBox
+          width="2.25rem"
+          height="2.25rem"
+          borderRadius="lg"
+          sx={(theme) => menuImage(theme, { color:'secondary' })}
+        >
+          <Icon sx={{ color: ({ palette: { white } }) => white.main }}>
+            person
+          </Icon>
+        </SoftBox>
         <SoftTypography variant="h6" fontWeight="medium" textTransform="capitalize">
           {title}
         </SoftTypography>
@@ -96,7 +107,7 @@ function ProfileInfoCard({ title, description, info, social, action }) {
           </Tooltip>
         </SoftTypography>
       </SoftBox>
-      <SoftBox p={2}>
+      <SoftBox p={2} pt={0}>
         <SoftBox mb={2} lineHeight={1}>
           <SoftTypography variant="button" color="text" fontWeight="regular">
             {description}
@@ -107,12 +118,12 @@ function ProfileInfoCard({ title, description, info, social, action }) {
         </SoftBox>
         <SoftBox>
           {renderItems}
-          <SoftBox display="flex" py={1} pr={2}>
+          {/* <SoftBox display="flex" py={1} pr={2}>
             <SoftTypography variant="button" fontWeight="bold" textTransform="capitalize">
               social: &nbsp;
             </SoftTypography>
             {renderSocial}
-          </SoftBox>
+          </SoftBox> */}
         </SoftBox>
       </SoftBox>
     </Card>

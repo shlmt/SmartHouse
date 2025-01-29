@@ -40,7 +40,7 @@ const NotificationItem = forwardRef(({ color, image, title, date, ...rest }, ref
       borderRadius="lg"
       sx={(theme) => menuImage(theme, { color })}
     >
-      {image}
+      {image ?? <Icon>user</Icon>}
     </SoftBox>
     <SoftBox>
       <SoftTypography variant="button" textTransform="capitalize" fontWeight="regular">
