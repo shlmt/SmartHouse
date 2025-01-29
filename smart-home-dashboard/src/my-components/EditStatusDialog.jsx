@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField } from "@mui/material"
+import SoftBox from "components/SoftBox"
 import { useEffect, useState } from "react"
 
 const EditStatusDialog=(props)=>{
@@ -8,6 +9,10 @@ const EditStatusDialog=(props)=>{
     const handleClose = () => {
       setOpen(false)
     }
+
+    useEffect(() => {
+      setStatus(props.status)
+    }, [props.status])
 
     const handleInputChange = (key, value) => {
         setStatus((prev) => ({
@@ -32,18 +37,30 @@ const EditStatusDialog=(props)=>{
         >
           <DialogTitle>Edit</DialogTitle>
           <DialogContent>
-            {Object.entries(status).map(([key, value]) => (
-                <TextField
+            {Object.entries(status).map(([key, value]) => (<SoftBox>
+               { value.toLowerCase() === "true" || value.toLowerCase() === "false" ?
+                  <FormControlLabel
+                      key={key}
+                      control={
+                          <Switch
+                            checked={value=='true'}
+                            onChange={(e) => handleInputChange(key, e.target.checked.toString())}
+                            color="info"
+                          />
+                      }
+                      label={key}
+                      sx={{marginLeft:'5px'}}
+                  />
+                : <TextField
                     color='info'
                     key={key}
                     label={key}
                     value={value}
-                    variant="standard"
+                    type={/^\d+$/.test(value) ? "number" : "text"} 
                     margin="dense"
-                    fullWidth
                     onChange={(e) => handleInputChange(key, e.target.value)}
-                />
-            ))}
+                />}</SoftBox>
+            ))} 
           </DialogContent>
           <DialogActions>
             <Button color='light' onClick={handleClose}>Cancel</Button>

@@ -75,11 +75,11 @@ const Actuator=(props)=>{
               </Select>
             </FormControl>
           </SoftBox>
-          <SoftBox mt={1}>
+          <SoftBox mt={1} display='flex' justifyContent='space-around' flexWrap='wrap'>
             {selectedActuator=='all' ?
               <>
-                <SoftButton variant="contained" color='light' size='small' circular sx={{marginRight:'4px'}}>turn on</SoftButton>
-                <SoftButton variant="contained" color='text' size='small' circular sx={{marginLeft:'4px'}}>turn off</SoftButton>
+                <SoftButton variant="contained" color='light' size='small' circular>turn on</SoftButton>
+                <SoftButton variant="contained" color='text' size='small' circular>turn off</SoftButton>
               </>
             : <>off <Switch checked={turn ?? selectedActuator.isOn} onChange={handleSwitch}/> on</>}
           </SoftBox>
