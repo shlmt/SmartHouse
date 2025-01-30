@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField } from "@mui/material"
 import SoftBox from "components/SoftBox"
+import SoftInput from "components/SoftInput"
 import { useEffect, useState } from "react"
 
 const EditStatusDialog=(props)=>{
@@ -36,7 +37,7 @@ const EditStatusDialog=(props)=>{
           }}
         >
           <DialogTitle>Edit</DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{display:'flex',flexDirection:'column',gap:'15px'}}>
             {Object.entries(status).map(([key, value]) => (<SoftBox>
                { value.toLowerCase() === "true" || value.toLowerCase() === "false" ?
                   <FormControlLabel
@@ -51,13 +52,11 @@ const EditStatusDialog=(props)=>{
                       label={key}
                       sx={{marginLeft:'5px'}}
                   />
-                : <TextField
-                    color='info'
+                : <SoftInput
                     key={key}
                     label={key}
                     value={value}
                     type={/^\d+$/.test(value) ? "number" : "text"} 
-                    margin="dense"
                     onChange={(e) => handleInputChange(key, e.target.value)}
                 />}</SoftBox>
             ))} 
