@@ -75,14 +75,14 @@ const Actuator=(props)=>{
               </Select>
             </FormControl>
           </SoftBox>
-          <SoftBox mt={1} display='flex' justifyContent='space-around' flexWrap='wrap'>
-            {selectedActuator=='all' ?
-              <>
-                <SoftButton variant="contained" color='light' size='small' circular>turn on</SoftButton>
-                <SoftButton variant="contained" color='text' size='small' circular>turn off</SoftButton>
-              </>
-            : <>off <Switch checked={turn ?? selectedActuator.isOn} onChange={handleSwitch}/> on</>}
-          </SoftBox>
+          {selectedActuator=='all' ?
+            <SoftBox mt={1} display='flex' justifyContent='space-around' flexWrap='wrap'>
+              <SoftButton variant="contained" color='light' size='small' circular>turn on</SoftButton>
+              <SoftButton variant="contained" color='text' size='small' circular>turn off</SoftButton>
+            </SoftBox>
+          : <SoftBox mt={1}>
+              off <Switch checked={turn ?? selectedActuator.isOn} onChange={handleSwitch}/> on
+            </SoftBox>}
           {!selectedActuator.status ? null : <Divider />}
           {selectedActuator.status && (
           <Grid container alignItems="center" justifyContent='center' spacing={2}>
