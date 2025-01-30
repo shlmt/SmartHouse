@@ -56,6 +56,7 @@ class Auth {
                 if(user instanceof User){
                     this.user = user
                     this.isLoggedIn = true
+                    rememberMe && sessionStorage.setItem('user',JSON.stringify(user))
                 }
             }
             else{
@@ -83,8 +84,10 @@ class Auth {
     logout = async()=>{
         const res = await axios.get('/logout')
         if(res?.status==200){
-            this.isLoggedIn = false
             console.log('logout')
+            sessionStorage.removeItem('user')
+            this.user = {}
+            this.isLoggedIn = false
         }
         else {
             console.log("error in logout")

@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider } from "@mui/material"
+import { CssBaseline, Icon, ThemeProvider } from "@mui/material"
 import theme from "assets/theme"
 import Sidenav from "examples/Sidenav"
 import { inject, observer } from "mobx-react"
@@ -16,6 +16,8 @@ import Comp from "Comp"
 import routes from "routes"
 import Upgarde from "pages/Upgrade"
 import DashboardNavbar from "examples/Navbars/DashboardNavbar"
+import Logout from "my-components/Logout"
+import AlertManager from "my-components/AlertManager"
 
 const App = (props) => {
   const isLoggedIn = props.authStore.isLoggedIn
@@ -43,6 +45,7 @@ const App = (props) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+        {/* <AlertManager/> */}
         {isLoggedIn ?
         <>
           <DashboardLayout>
@@ -65,7 +68,7 @@ const App = (props) => {
               <Route path="/billing" element={isPro ? <>billing</> : <Navigate to="./upgrade" />}/>
               <Route path="/scenario" element={isPro ? <>scenario</> : <Navigate to="./upgrade" />}/>
               <Route path="/history" element={isPro ? <>history</> : <Navigate to="./upgrade" />}/>
-              <Route path="/logout" action={props.authStore?.logout}/>
+              <Route path="/logout" element={<Logout logout={props.authStore.logout}/>}/>
             </Routes>
           </DashboardLayout>
         </>
@@ -74,7 +77,6 @@ const App = (props) => {
           <Route path="/" element={<Navigate to="/login"/>}/>
           <Route path="/login" Component={Login}/>
           <Route path="/register" Component={Register}/>
-          <Route path="/logout" element={<Navigate to="/login"/>}/>
           <Route path="*" element={<Navigate to="/login"/>}/>
         </Routes>
         }
