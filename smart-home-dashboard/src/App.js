@@ -45,7 +45,7 @@ const App = (props) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-        {/* <AlertManager/> */}
+        <AlertManager/>
         {isLoggedIn ?
         <>
           <DashboardLayout>

@@ -2,6 +2,7 @@ import * as signalR from "@microsoft/signalr"
 import { makeAutoObservable, when } from "mobx"
 import auth from "./auth"
 import Actuator from "../models/Actuator"
+import alert from "./alert"
 
 const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
 const conn = new signalR.HubConnectionBuilder()
@@ -46,11 +47,10 @@ class Devices {
                     console.error("Auth Error:", message)
                 })      
                 conn.on("Error", (message) => {
-                    console.error("Error:", message)
+                    alert.addAlert({message:'Error: '+message,color:'error'})
                 })      
                         
-                conn.on("ReceiveDataChangeNotification", (action, type, device) => {                    
-                    console.log(action, type, device)
+                conn.on("ReceiveDataChangeNotification", (action, type, device) => { 
                     if (device.id) switch(action){
                         case "Add":
                             this[type.toLowerCase()+'s'].push(device)
@@ -99,7 +99,6 @@ class Devices {
     }
 
     causeDeviceUpdate = (device,type,action="add") => {
-        console.log('causeDeviceUpdate',device,type,action);
         if(type.toLowerCase()=='actuator') {
             let d = new Actuator(device)
             if(d instanceof Actuator && conn.state=='Connected')
