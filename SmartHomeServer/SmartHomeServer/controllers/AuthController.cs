@@ -28,7 +28,7 @@ namespace SmartHomeServer.controllers
         public async Task<ActionResult> MyDetails()
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!String.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(userId))
             {
                 User user = await GetUserById(new Guid(userId));
                 if(user != null)
@@ -44,7 +44,7 @@ namespace SmartHomeServer.controllers
         [Route("login")]
         public async Task<ActionResult> Login([FromBody] LoginUser loginUser)
         {
-            if(String.IsNullOrEmpty(loginUser.Email) || String.IsNullOrEmpty(loginUser.Password))
+            if(string.IsNullOrEmpty(loginUser.Email) || string.IsNullOrEmpty(loginUser.Password))
             {
                 return BadRequest("username & password can't be null or empty");
             }
@@ -69,9 +69,9 @@ namespace SmartHomeServer.controllers
         [Route("register")]
         public async Task<ActionResult> Register([FromBody] RegisterUser registerUser)
         {
-            if(String.IsNullOrEmpty(registerUser.UserName)
-                || String.IsNullOrEmpty(registerUser.Email)
-                || String.IsNullOrEmpty(registerUser.Password))
+            if(string.IsNullOrEmpty(registerUser.UserName)
+                || string.IsNullOrEmpty(registerUser.Email)
+                || string.IsNullOrEmpty(registerUser.Password))
             {
                 return BadRequest();
             }
