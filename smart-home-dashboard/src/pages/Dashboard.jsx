@@ -6,9 +6,13 @@ import MediaPlayer from "layouts/virtual-reality/components/MediaPlayer"
 import { inject, observer } from "mobx-react"
 import Actuator from "my-components/Actuator"
 
+const actuatorsTypes = ['light','air conditioner']
+const actuatorsStates = {
+  'light':{tmp:['1000','7000'],power:['40','80']},
+  'air conditioner':{mode:['cool','warm'],tmp:['12','38'],fun:['0','5'],isTurbo:['true','false']}
+}
 
 const Dashboard=(props)=>{
-    const actuatorsTypes = ['light','air conditioner']
 
     const actuators = props.devicesStore.actuators
 
@@ -23,6 +27,8 @@ const Dashboard=(props)=>{
                         name={type}
                         actuators={actuators.filter(a=>a.name==type)}
                         notifyChange={props.devicesStore.causeDeviceUpdate}
+                        notifyChangeAll={props.devicesStore.causeActuatorUpdateAll}
+                        initStatus={actuatorsStates[type]}
                       />
                     </Grid>
                   })}
@@ -33,6 +39,7 @@ const Dashboard=(props)=>{
                       name='other'
                       actuators={actuators.filter(a=>!(actuatorsTypes.find(type=>type==a.name)))}
                       notifyChange={props.devicesStore.causeDeviceUpdate}
+                      notifyChangeAll={props.devicesStore.causeActuatorUpdateAll}
                     />
                   </Grid>
                 </Grid>}

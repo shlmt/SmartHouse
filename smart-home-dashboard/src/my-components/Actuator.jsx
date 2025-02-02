@@ -28,7 +28,13 @@ const Actuator=(props)=>{
 
     const handleApplyStatus=(status)=>{
         let ac = {...selectedActuator, status}
+        if(selectedActuator=='all')
+          handleChangeAll(null,status)
         props.notifyChange && props.notifyChange(ac,'actuator','update')
+    }
+
+    const handleChangeAll=(isOn,status=null)=>{
+      props.notifyChangeAll && props.notifyChangeAll(props.name,isOn,status)
     }
 
     return(<>
@@ -77,23 +83,24 @@ const Actuator=(props)=>{
           </SoftBox>
           {selectedActuator=='all' ?
             <SoftBox mt={1} display='flex' justifyContent='space-around' flexWrap='wrap'>
-              <SoftButton variant="contained" color='light' size='small' circular>turn on</SoftButton>
-              <SoftButton variant="contained" color='text' size='small' circular>turn off</SoftButton>
+              <SoftButton variant="contained" color='light' size='small' circular onClick={()=>handleChangeAll(true)}>turn on</SoftButton>
+              <SoftButton variant="contained" color='text' size='small' circular onClick={()=>handleChangeAll(false)}>turn off</SoftButton>
             </SoftBox>
           : <SoftBox mt={1}>
               off <Switch checked={turn ?? selectedActuator.isOn} onChange={handleSwitch}/> on
             </SoftBox>}
-          {!selectedActuator.status ? null : <Divider />}
-          {selectedActuator.status && (
+          {(selectedActuator.status || props.initStatus) && (<>
+          <Divider />
           <Grid container alignItems="center" justifyContent='center' spacing={2}>
             <Grid item sx={11}>
-              <SoftTypography variant="h6">
-                {Object.entries(selectedActuator.status).map(([key, value]) => (
+              {selectedActuator.status ? <SoftTypography variant="h6">
+                {Object.entries(props.initStatus ?? selectedActuator.status).map(([key, value]) => (
                   <div key={key}>
-                    <strong>{key}:</strong> {value.toString()}
+                    <strong>{key}:</strong> {selectedActuator?.status ? selectedActuator?.status[key] : ''}
                   </div>
                 ))}
               </SoftTypography>
+            : <SoftTypography fontWeight='medium' color='secondary' sx={{ cursor: 'pointer' }} onClick={()=> setOpenDialog(true)}>Edit all</SoftTypography>}
             </Grid>
             <Grid item sx={1}>
               <Tooltip title="edit" placement="top">
@@ -101,10 +108,16 @@ const Actuator=(props)=>{
               </Tooltip>
             </Grid>
           </Grid>
-        )}
+        </>)}
         </SoftBox>
       </Card>  
-      {selectedActuator.status && <EditStatusDialog open={openDialog} setOpen={setOpenDialog} status={selectedActuator.status} handleApplyStatus={handleApplyStatus}/>}
+      <EditStatusDialog
+        open={openDialog}
+        setOpen={setOpenDialog}
+        initStatus={props.initStatus}
+        currentStatus={selectedActuator.status}
+        handleApplyStatus={handleApplyStatus}
+      />
     </>)
 }
 

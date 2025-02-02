@@ -66,6 +66,19 @@ class Devices {
                             console.log("Error ReceiveDataChangeNotification: Unknown action :",action)                        
                     }
                 })
+
+                conn.on("RecieveActuatorChangeAll",(name,isOn,status)=>{
+                    this.actuators.forEach(a=>{
+                        if(a.name==name){
+                            Object.entries(status).forEach(([key, value]) => {
+                                if (value !== null) {
+                                a.status[key] = value
+                                }
+                            })
+                            if(isOn!=null) a.isOn = isOn
+                        }
+                    })
+                })
             }).catch(err => console.error('connection error: '+err))
         )
     }
@@ -107,9 +120,16 @@ class Devices {
         }
         else {
             if(conn.state=='Connected')
-                conn?.invoke("NotifyChange", action, type, device)
-                    .catch(err => console.error('NotifyChange error: '+err))
+                conn?.invoke("NotifyMonitorChange", action, type, device)
+                    .catch(err => console.error('NotifyMonitorChange error: '+err))
         }       
+    }
+
+    causeActuatorUpdateAll = (name,isOn,status=null) => {
+        console.log('causeActuatorUpdateAll');
+        if(conn.state=='Connected' && name!='')
+            conn?.invoke("NotifyActuatorChangeAll", name, isOn, status)
+                .catch(err => console.error('NotifyActuatorChangeAll error: '+err))
     }
 }
 

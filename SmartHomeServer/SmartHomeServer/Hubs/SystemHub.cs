@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmartHomeServer.Classes;
+using System;
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartHomeServer.Hubs
 {
@@ -13,7 +15,7 @@ namespace SmartHomeServer.Hubs
         public async Task ConnectHouse(Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -36,7 +38,7 @@ namespace SmartHomeServer.Hubs
         public async Task ConnectDashboard()
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -65,7 +67,7 @@ namespace SmartHomeServer.Hubs
         public async Task SendMessage(string senderType, string message)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -89,7 +91,7 @@ namespace SmartHomeServer.Hubs
         public async Task SendDataToSpecificDashboard(string dashId, Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -114,7 +116,7 @@ namespace SmartHomeServer.Hubs
         public async Task NotifyActuatorChange(Operation action, Actuator deviceData)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -141,10 +143,40 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task NotifyChange(Operation action, DeviceType type, MonitorDevice data)
+        public async Task NotifyActuatorChangeAll(string name, bool? isOn, Dictionary<string, string> status)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
+                return;
+            }
+            if (string.IsNullOrEmpty(name))
+            {
+                await Clients.Caller.SendAsync("Error", "invalid name");
+                return;
+            }
+            if (SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                if (pair.house != null && pair.house != Context.ConnectionId)
+                {
+                    await Clients.Client(pair.house).SendAsync("RecieveActuatorChangeAll", name, isOn, status );
+                }
+                foreach (var dashId in pair.dashboards)
+                {
+                    await Clients.Client(dashId).SendAsync("RecieveActuatorChangeAll", name, isOn, status);
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", "systemId not found.");
+            }
+        }
+
+        public async Task NotifyMonitorChange(Operation action, DeviceType type, MonitorDevice data)
+        {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
@@ -175,10 +207,11 @@ namespace SmartHomeServer.Hubs
                 await Clients.Caller.SendAsync("Error", "systemId not found.");
             }
         }
+
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (String.IsNullOrEmpty(systemId))
+            if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
