@@ -28,10 +28,13 @@ import SoftBox from "components/SoftBox";
 import SoftAlertRoot from "components/SoftAlert/SoftAlertRoot";
 import SoftAlertCloseIcon from "components/SoftAlert/SoftAlertCloseIcon";
 
-function SoftAlert({ color, dismissible, children, ...rest }) {
+function SoftAlert({ color, dismissible, children, onClose, ...rest }) {
   const [alertStatus, setAlertStatus] = useState("mount");
 
-  const handleAlertStatus = () => setAlertStatus("fadeOut");
+  const handleAlertStatus = () =>{
+    onClose && typeof(onClose) === "function" && onClose()
+    setAlertStatus("fadeOut");
+  }
 
   // The base template for the alert
   const alertTemplate = (mount = true) => (
