@@ -12,7 +12,6 @@ const conn = new signalR.HubConnectionBuilder()
 
 class Devices {
     _actuators = []
-    _sensors = []
     _meters = []
 
    constructor() {
@@ -26,13 +25,11 @@ class Devices {
                 })
                 conn.on("ReceiveInitData", (data) => {
                     this.actuators = data.actuators ?? []
-                    this.sensors = data.sensors ?? []
                     this.meters = data.meters ?? []
                     console.log(`ReceiveInitData:`,data)
                 })
                 conn.on("HouseConnected", (data) => {
                     this.actuators = data.actuators ?? []
-                    this.sensors = data.sensors ?? []
                     this.meters = data.meters ?? []
                     console.log('HouseConnected',data)
                 })
@@ -70,10 +67,8 @@ class Devices {
                 conn.on("RecieveActuatorChangeAll",(name,isOn,status)=>{
                     this.actuators.forEach(a=>{
                         if(a.name==name){
-                            Object.entries(status).forEach(([key, value]) => {
-                                if (value !== null) {
-                                a.status[key] = value
-                                }
+                            status && Object.entries(status).forEach(([key, value]) => {
+                                if (value !== null) a.status[key] = value
                             })
                             if(isOn!=null) a.isOn = isOn
                         }
@@ -89,14 +84,6 @@ class Devices {
 
     get actuators(){
         return this._actuators
-    }
-
-    set sensors(sensors){
-        this._sensors = sensors
-    }
-
-    get sensors(){
-        return this._sensors
     }
 
     set meters(meters){
@@ -120,13 +107,12 @@ class Devices {
         }
         else {
             if(conn.state=='Connected')
-                conn?.invoke("NotifyMonitorChange", action, type, device)
-                    .catch(err => console.error('NotifyMonitorChange error: '+err))
+                conn?.invoke("NotifyMeterChange", action, type, device)
+                    .catch(err => console.error('NotifyMeterChange error: '+err))
         }       
     }
 
     causeActuatorUpdateAll = (name,isOn,status=null) => {
-        console.log('causeActuatorUpdateAll');
         if(conn.state=='Connected' && name!='')
             conn?.invoke("NotifyActuatorChangeAll", name, isOn, status)
                 .catch(err => console.error('NotifyActuatorChangeAll error: '+err))

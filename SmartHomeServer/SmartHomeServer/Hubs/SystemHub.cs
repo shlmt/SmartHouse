@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmartHomeServer.Classes;
-using System;
 using System.Collections.Concurrent;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartHomeServer.Hubs
 {
@@ -12,7 +10,7 @@ namespace SmartHomeServer.Hubs
     public class SystemHub:Hub
     {
         private static readonly ConcurrentDictionary<string, (string house, List<string> dashboards)> SystemConnections = new();
-        public async Task ConnectHouse(Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
+        public async Task ConnectHouse(Actuator[] actuators, Meter[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(systemId))
@@ -25,7 +23,7 @@ namespace SmartHomeServer.Hubs
                 SystemConnections[systemId] = (Context.ConnectionId, pair.dashboards);
                 foreach (var dashId in pair.dashboards)
                 {
-                    await Clients.Client(dashId).SendAsync("HouseConnected", new { actuators, sensors, meters });
+                    await Clients.Client(dashId).SendAsync("HouseConnected", new { actuators, meters });
                 }
             }
             else
@@ -88,7 +86,7 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task SendDataToSpecificDashboard(string dashId, Actuator[] actuators, MonitorDevice[] sensors, MonitorDevice[] meters)
+        public async Task SendDataToSpecificDashboard(string dashId, Actuator[] actuators, Meter[] meters)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(systemId))
@@ -100,7 +98,7 @@ namespace SmartHomeServer.Hubs
             {
                 if (pair.dashboards.Contains(dashId))
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveInitData", new { actuators, sensors, meters });
+                    await Clients.Client(dashId).SendAsync("ReceiveInitData", new { actuators, meters });
                 }
                 else
                 {
@@ -173,7 +171,7 @@ namespace SmartHomeServer.Hubs
             }
         }
 
-        public async Task NotifyMonitorChange(Operation action, DeviceType type, MonitorDevice data)
+        public async Task NotifyMeterChange(Operation action, Meter data)
         {
             string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(systemId))
@@ -192,14 +190,14 @@ namespace SmartHomeServer.Hubs
                 {
                     if(action == Operation.Update)
                     {
-                        await Clients.Caller.SendAsync("Error", $"Dashboard can't update {type} data.");
+                        await Clients.Caller.SendAsync("Error", $"Dashboard can't update meter data.");
                         return;
                     }
-                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, type.ToString(), data);
+                    await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, "meter", data);
                 }
                 foreach (var dashId in pair.dashboards)
                 {
-                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, type.ToString(), data);
+                    await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, "meter", data);
                 }
             }
             else
