@@ -26,7 +26,6 @@ class Devices {
                 conn.on("ReceiveInitData", (data) => {
                     this.actuators = data.actuators ?? []
                     this.meters = data.meters ?? []
-                    console.log(`ReceiveInitData:`,data)
                 })
                 conn.on("HouseConnected", (data) => {
                     this.actuators = data.actuators ?? []
@@ -77,7 +76,6 @@ class Devices {
 
                 conn.on("NotifySensorAlert",(sensor,room,msg)=>{
                     alert.addAlert({message:`Warning: ${sensor} in ${room??'house'}. ${msg}`,color:'warning',seconds:null})
-                    console.log("NotifySensorAlert",sensor,room,msg)
                 })
             }).catch(err => console.error('connection error: '+err))
         )

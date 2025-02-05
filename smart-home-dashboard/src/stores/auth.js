@@ -84,7 +84,6 @@ class Auth {
     logout = async()=>{
         const res = await axios.get('/logout')
         if(res?.status==200){
-            console.log('logout')
             sessionStorage.removeItem('user')
             this.user = {}
             this.isLoggedIn = false

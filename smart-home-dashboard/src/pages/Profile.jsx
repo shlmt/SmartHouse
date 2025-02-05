@@ -5,9 +5,6 @@ const Profile=(props)=>{
 
     const user = props.user
 
-    console.log(props,user);
-    
-
     return(<>
         <SoftBox mt={5} mb={3} mr='50%' sx={{width:'20%'}}>
             <ProfileInfoCard

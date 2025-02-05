@@ -40,7 +40,7 @@ const EditStatusDialog=(props)=>{
           <DialogTitle>Edit</DialogTitle>
           <DialogContent sx={{display:'flex', flexDirection:'column', gap:'10px', width:'450px', maxWidth:'90%'}}>
             {Object.entries(props.initStatus ?? status).map(([key, values]) => (
-              <SoftBox>
+              <SoftBox key={key+'Box'}>
                 <SoftTypography color='info' variant='h6'>{key}</SoftTypography>
                 {values.includes('true') && values.includes('false') && values.length==2 ?
                   <FormControlLabel
@@ -57,6 +57,7 @@ const EditStatusDialog=(props)=>{
                   />
                 : Array.isArray(values) ? values.length==2 && /^\d+$/.test(values[0]) ?
                   <Slider
+                    key={key}
                     min={Number(values[0])}
                     max={Number(values[1])}
                     value={Number(status[key]??values[0])}
@@ -66,6 +67,7 @@ const EditStatusDialog=(props)=>{
                     onChange={e=>handleInputChange(key,e.target.value)}
                   />
                 : <ToggleButtonGroup
+                    key={key}
                     value={status[key]}
                     exclusive
                     onChange={e=>handleInputChange(key,e.target.value)}
