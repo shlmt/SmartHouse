@@ -5,9 +5,9 @@ import SoftAlert from "components/SoftAlert"
 const AlertManager=({alertStore})=>{
 
     return(
-        <div style={{ position: "fixed", bottom: "20px", right: "25px" }}>
+        <div style={{ position: "fixed", bottom: "20px", right: "25px", zIndex:'10000' }}>
             {alertStore.alerts.map(alert => (
-                <div style={{width:'250px'}} key={alert.id}>
+                <div key={alert.id}>
                     <SoftAlert color={alert.color ?? 'info'} dismissible>
                         {alert.icon && <Icon>{alert.icon}</Icon>}&nbsp;{alert.message}
                     </SoftAlert>

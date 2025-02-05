@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using SmartHomeServer.Classes;
+using System;
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartHomeServer.Hubs
 {
@@ -198,6 +201,37 @@ namespace SmartHomeServer.Hubs
                 foreach (var dashId in pair.dashboards)
                 {
                     await Clients.Client(dashId).SendAsync("ReceiveDataChangeNotification", action, "meter", data);
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", "systemId not found.");
+            }
+        }
+
+        public async Task NotifySensorAlert(string sensor, string room, string msg)
+        {
+            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(systemId))
+            {
+                await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
+                return;
+            }
+            if (string.IsNullOrEmpty(sensor))
+            {
+                await Clients.Caller.SendAsync("Error", "which sensor sent this alert?");
+                return;
+            }
+            if (SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                if (pair.house != Context.ConnectionId)
+                {
+                    await Clients.Caller.SendAsync("Error", "Dashboard can't send sonsor's alert.");
+                    return;
+                }
+                foreach (var dashId in pair.dashboards)
+                {
+                    await Clients.Client(dashId).SendAsync("NotifySensorAlert", sensor, room, msg);
                 }
             }
             else
