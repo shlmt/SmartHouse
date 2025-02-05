@@ -44,7 +44,7 @@ const Actuator=(props)=>{
             display="grid"
             justifyContent="center"
             alignItems="center"
-            bgColor='info'
+            bgColor='primary'
             color="white"
             width="4rem"
             height="4rem"

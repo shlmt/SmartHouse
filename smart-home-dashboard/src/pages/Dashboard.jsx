@@ -5,6 +5,7 @@ import MiniStatisticsCard from "examples/Cards/StatisticsCards/MiniStatisticsCar
 import MediaPlayer from "layouts/virtual-reality/components/MediaPlayer"
 import { inject, observer } from "mobx-react"
 import Actuator from "my-components/Actuator"
+import Weather from "my-components/Weather"
 
 const actuatorsTypes = ['light','air conditioner']
 const actuatorsStates = {
@@ -17,6 +18,7 @@ const Dashboard=(props)=>{
     const actuators = props.devicesStore.actuators
 
     return(<>
+            <Weather />
             <SoftBox mt={5}>
             {actuators?.length>0 && <Grid container spacing={3} paddingBottom={3}>
                   {['light','air conditioner'].map(type=>{
@@ -49,8 +51,8 @@ const Dashboard=(props)=>{
                       <MiniStatisticsCard
                         title={{ text: meter.name }}
                         count={meter.value}
-                        percentage={{ color: "success", text: "+55%" }}
-                        icon={{ color: "primary", component: meter.name }}
+                        percentage={{ color: "error", text: "" }}
+                        icon={{ color: "success", component: meter.name }}
                       />                
                     </Grid>
                   })}
