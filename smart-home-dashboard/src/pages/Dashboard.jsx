@@ -15,7 +15,7 @@ const actuatorsStates = {
 const Dashboard=({devicesStore,authStore})=>{
 
     return(<>
-        <SoftBox display='flex' flexDirection={{xs:"column-reverse", md:"column"}}>
+        <SoftBox display='flex' flexDirection={{xs:"column-reverse", md:"column"}} >
           <SoftBox>
             <div style={{marginTop:3,display:'flex',alignItems:"center",flexWrap:'wrap',gap:'15px'}}>
               <Clock />
@@ -24,7 +24,8 @@ const Dashboard=({devicesStore,authStore})=>{
           </SoftBox>
           <SoftBox>
             <SoftBox mt={3}>
-            {devicesStore.actuators?.length>0 && <Grid container spacing={3} paddingBottom={3}>
+            <Grid container spacing={3} paddingBottom={3}>
+            {devicesStore.actuators?.length>0 && <>
                   {['light','air conditioner'].map(type=>{
                     return <Grid item xs={12} md={6} xl={3} key={type}>
                       <Actuator
@@ -47,15 +48,14 @@ const Dashboard=({devicesStore,authStore})=>{
                       notifyChange={devicesStore.causeDeviceUpdate}
                       notifyChangeAll={devicesStore.causeActuatorUpdateAll}
                     />
-                  </Grid>
-                </Grid>}
-                <Grid container spacing={3} paddingBottom={3}>
+                  </Grid></>
+                }
+                {devicesStore.meters.length>0 && <Grid item xs={12} md={3} xl={3}>
                   {devicesStore.meters.map(m=>{
-                    return <Grid item xs={12} md={6} xl={3} key={m.id}>
-                      <Meter meter={m}/>            
-                    </Grid>
+                    return <SoftBox mb={2}><Meter meter={m}/>   </SoftBox>         
                   })}
-                </Grid>
+                </Grid>}
+              </Grid>
             </SoftBox>
           </SoftBox>
         </SoftBox> 
