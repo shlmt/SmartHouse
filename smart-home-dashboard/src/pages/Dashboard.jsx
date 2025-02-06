@@ -2,6 +2,7 @@ import { Grid } from "@mui/material"
 import SoftBox from "components/SoftBox"
 import { inject, observer } from "mobx-react"
 import Actuator from "my-components/Actuator"
+import Clock from "my-components/Clock"
 import Meter from "my-components/Meter"
 import Weather from "my-components/Weather"
 
@@ -14,7 +15,14 @@ const actuatorsStates = {
 const Dashboard=({devicesStore,authStore})=>{
 
     return(<>
-            {authStore?.user?.coordinates && <Weather coordinates={authStore.user.coordinates}/>}
+        <SoftBox display='flex' flexDirection={{xs:"column-reverse", md:"column"}}>
+          <SoftBox>
+            <div style={{marginTop:3,display:'flex',alignItems:"center",flexWrap:'wrap',gap:'15px'}}>
+              <Clock />
+              {authStore?.user?.coordinates && <Weather coordinates={authStore.user.coordinates}/>}
+            </div>
+          </SoftBox>
+          <SoftBox>
             <SoftBox mt={3}>
             {devicesStore.actuators?.length>0 && <Grid container spacing={3} paddingBottom={3}>
                   {['light','air conditioner'].map(type=>{
@@ -49,6 +57,8 @@ const Dashboard=({devicesStore,authStore})=>{
                   })}
                 </Grid>
             </SoftBox>
+          </SoftBox>
+        </SoftBox> 
     </>)
 }
 

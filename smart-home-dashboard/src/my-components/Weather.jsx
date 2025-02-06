@@ -35,27 +35,27 @@ const Weather = ({coordinates}) => {
       }, [coordinates]) 
     
     return ( <>
-    <Card sx={{marginTop:'10px', backgroundColor:'#f8f9fa', width:'350px', maxWidth:'100%'}}>
+    <Card sx={{backgroundColor:'#f8f9fa', width:'250px', maxWidth:'100%'}}>
         <SoftBox
             display="flex"
             justifyContent="space-between"
             alignItems={{ xs: "center", md: "flex-start" }}
-            p={3} pb={2}
+            p={2.5} pb={1.5} pt={3}
         >
             <div style={{display:'flex',flexDirection:'column', gap:0}}>
                 <SoftBox display="flex" alignItems='flex-end' flexWrap='wrap' pb={0}>
                     {currentWeather?.main?.temp &&
-                    <SoftTypography variant='h2' color='dark' fontSize={32} fontWeight="medium">
+                    <SoftTypography variant='h2' color='dark' fontSize={28} fontWeight="bold">
                         {currentWeather.main.temp.toFixed(1)}&deg;C
                     </SoftTypography>}
                     {currentWeather?.name &&
-                    <SoftTypography variant='p' color='text' ml={1} fontSize={18} fontWeight='light'>
-                        {currentWeather.name}
+                    <SoftTypography variant='p' color='dark' ml={1} fontSize={18} fontWeight='light'>
+                        {currentWeather.weather[0].main}
                     </SoftTypography>}
                 </SoftBox>
                 {currentWeather?.weather[0]?.main &&
-                <SoftTypography color='dark' fontSize={20} fontWeight="medium">
-                    {currentWeather.weather[0].main}
+                <SoftTypography color='dark' fontSize={16} pb={0.5}>
+                    {currentWeather.name}
                 </SoftTypography>}
                 {updatedHour &&
                 <SoftTypography variant='p' color='text' fontSize={12}>
@@ -68,13 +68,13 @@ const Weather = ({coordinates}) => {
                 justifyContent="center"
                 alignItems="center"
                 bgColor='info'
-                width="4rem"
-                height="4.25rem"
+                width="3.75rem"
+                height="4rem"
                 shadow="md"
                 borderRadius="lg"
                 variant="gradient"
             >
-                <img src={`https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`} height='100%' style={{marginTop:'-15px'}}/>
+                <img src={`https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`} height='95%' style={{marginTop:'-15px'}}/>
             </SoftBox>}
         </SoftBox>
     </Card>
