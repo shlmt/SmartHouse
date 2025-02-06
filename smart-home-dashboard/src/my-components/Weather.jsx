@@ -4,7 +4,7 @@ import SoftBox from "components/SoftBox"
 import SoftTypography from "components/SoftTypography"
 import { useEffect, useState } from "react"
 
-const Weather = ({coordinates="32.084932 34.835226"}) => {
+const Weather = ({coordinates}) => {
 
     const [currentWeather, setCurrnetWeather] = useState()
     const [updatedHour, setUpdatedhour] = useState()
@@ -49,7 +49,7 @@ const Weather = ({coordinates="32.084932 34.835226"}) => {
                         {currentWeather.main.temp.toFixed(1)}&deg;C
                     </SoftTypography>}
                     {currentWeather?.name &&
-                    <SoftTypography variant='p' color='text' ml={1} fontSize={16} fontWeight='light'>
+                    <SoftTypography variant='p' color='text' ml={1} fontSize={18} fontWeight='light'>
                         {currentWeather.name}
                     </SoftTypography>}
                 </SoftBox>
