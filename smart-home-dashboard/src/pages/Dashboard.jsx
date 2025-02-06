@@ -17,7 +17,7 @@ const Dashboard=(props)=>{
 
     return(<>
             <Weather />
-            <SoftBox mt={5}>
+            <SoftBox mt={3}>
             {actuators?.length>0 && <Grid container spacing={3} paddingBottom={3}>
                   {['light','air conditioner'].map(type=>{
                     return <Grid item xs={12} md={6} xl={3} key={type}>
