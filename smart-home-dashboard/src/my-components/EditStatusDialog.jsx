@@ -63,7 +63,7 @@ const EditStatusDialog=(props)=>{
                     value={Number(status[key]??values[0])}
                     valueLabelDisplay="auto"
                     marks
-                    step={Number(status[key])>=1000 ? 100 : Number(status[key])>=40 ? 10 : 1}
+                    step={Number(status[key])>=1000 ? 200 : Number(status[key])>=40 ? 10 : 1}
                     onChange={e=>handleInputChange(key,e.target.value)}
                   />
                 : <ToggleButtonGroup
