@@ -17,7 +17,7 @@ const Clock =()=> {
     const hour = time.getHours().toString().padStart(2, "0")
     const minutes = time.getMinutes().toString().padStart(2, "0")
     const dayName = time.toLocaleDateString("en-US", { weekday: "short" })
-    const formattedDate = `${dayName} ${time.toLocaleDateString("he-IL", {
+    const formattedDate = `${dayName}. ${time.toLocaleDateString("he-IL", {
       day: "2-digit",
       month: "2-digit",
       year: "2-digit",
@@ -62,7 +62,7 @@ const Clock =()=> {
             </SoftBox>
         </SoftBox>
         <SoftBox display='flex' justifyContent='center'>
-            <SoftTypography fontSize={16} color='dark'>{formattedDate}</SoftTypography>
+            <SoftTypography fontSize={16} fontWeight='bold' color='dark'>{formattedDate}</SoftTypography>
         </SoftBox>
     </Card>
     )
