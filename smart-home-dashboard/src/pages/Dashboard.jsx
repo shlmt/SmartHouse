@@ -50,10 +50,13 @@ const Dashboard=({devicesStore,authStore})=>{
                     />
                   </Grid></>
                 }
-                {devicesStore.meters.length>0 && <Grid item xs={12} md={3} xl={3}>
-                  {devicesStore.meters.map(m=>{
-                    return <SoftBox mb={2}><Meter meter={m}/>   </SoftBox>         
-                  })}
+                {devicesStore.meters.length>0 &&
+                <Grid item xs={12} md={6} xl={3}>
+                  <Grid container spacing={2}>
+                    {devicesStore.meters.map(m=>{
+                      return <Grid item xs={4} md={6} xl={12}><Meter meter={m}/></Grid>         
+                    })}
+                  </Grid>
                 </Grid>}
               </Grid>
             </SoftBox>

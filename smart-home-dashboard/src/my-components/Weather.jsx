@@ -35,7 +35,7 @@ const Weather = ({coordinates}) => {
       }, [coordinates]) 
     
     return ( <>
-    <Card sx={{backgroundColor:'#f8f9fa', width:'250px', maxWidth:'100%'}}>
+    <Card sx={{backgroundColor:'#f8f9fa', width:'270px', maxWidth:'100%'}}>
         <SoftBox
             display="flex"
             justifyContent="space-between"
@@ -74,7 +74,7 @@ const Weather = ({coordinates}) => {
                 borderRadius="lg"
                 variant="gradient"
             >
-                <img src={`https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`} height='95%' style={{marginTop:'-15px'}}/>
+                <img src={`https://openweathermap.org/img/wn/${currentWeather.weather[0].icon}@2x.png`} width='100%'/>
             </SoftBox>}
         </SoftBox>
     </Card>
