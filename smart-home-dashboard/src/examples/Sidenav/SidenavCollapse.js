@@ -36,8 +36,9 @@ import {
 
 // Soft UI Dashboard React context
 import { useSoftUIController } from "context";
+import SoftBadge from "components/SoftBadge";
 
-function SidenavCollapse({ color, icon, name, children, active, noCollapse, open, ...rest }) {
+function SidenavCollapse({ color, icon, name, children, active, noCollapse, open, pro, ...rest }) {
   const [controller] = useSoftUIController();
   const { miniSidenav, transparentSidenav } = controller;
 
@@ -59,6 +60,7 @@ function SidenavCollapse({ color, icon, name, children, active, noCollapse, open
             primary={name}
             sx={(theme) => collapseText(theme, { miniSidenav, transparentSidenav, active })}
           />
+          {pro && <SoftBadge badgeContent='pro' color='primary' variant='gradient'/>}
         </SoftBox>
       </ListItem>
       {children && (

@@ -22,6 +22,7 @@ const routes = [
       icon: <Timelapse size="12px" />,
       component: <>trigers</>,
       noCollapse: true,
+      pro: true,
     },
     {
       type: "collapse",
@@ -31,6 +32,7 @@ const routes = [
       icon: <AutoGraphRounded size="12px" />,
       component: <>history</>,
       noCollapse: true,
+      pro: true,
     },
     { type: "title", title: "Account", key: "account-pages" },
     {
@@ -50,6 +52,7 @@ const routes = [
       icon: <CreditCard size="12px" />,
       component: <Billing/>,
       noCollapse: true,
+      pro: true,
     }
   ];  
 
