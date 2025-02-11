@@ -27,7 +27,6 @@ public class ScheduledTasksController : ControllerBase
     {
         HttpContext context = _httpContextAccessor.HttpContext;
         string systemId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine("CreateScheduledtask systemId: " + systemId);
         if (string.IsNullOrEmpty(systemId)) return Unauthorized();
         try
         {
@@ -79,8 +78,6 @@ public class ScheduledTasksController : ControllerBase
         }
         catch (Exception ex)
         {
-            await Console.Out.WriteLineAsync("error: "+ex.Message);
-            Console.WriteLine("error: " + ex.Message);
             return StatusCode(500);
         }
     }
