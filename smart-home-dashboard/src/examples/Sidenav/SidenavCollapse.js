@@ -60,7 +60,7 @@ function SidenavCollapse({ color, icon, name, children, active, noCollapse, open
             primary={name}
             sx={(theme) => collapseText(theme, { miniSidenav, transparentSidenav, active })}
           />
-          {pro && <SoftBadge badgeContent='pro' color='primary' variant='gradient'/>}
+          {pro && !miniSidenav && <SoftBadge badgeContent='pro' color='primary' variant='gradient'/>}
         </SoftBox>
       </ListItem>
       {children && (

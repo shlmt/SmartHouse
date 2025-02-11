@@ -29,7 +29,7 @@ const Profile=(props)=>{
     },[user.coordiante])
 
     return(<>
-        <SoftBox mt={5} mb={3} mr='50%' sx={{width:'20%'}}>
+        <SoftBox mt={5} mb={3} mr='50%' sx={{width:'250px'}}>
             <ProfileInfoCard
                 title="user profile"
                 info={{
