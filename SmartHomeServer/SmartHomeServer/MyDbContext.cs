@@ -19,10 +19,13 @@ public partial class MyDbContext : DbContext
 
     public virtual DbSet<Creditcard> Creditcards { get; set; }
 
+    public virtual DbSet<Scheduledtask> Scheduledtasks { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("name=db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=localhost;user=root;password=1234;database=smarthouse", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +49,33 @@ public partial class MyDbContext : DbContext
             entity.Property(e => e.LastFourDigits)
                 .HasMaxLength(4)
                 .HasColumnName("last_four_digits");
+        });
+
+        modelBuilder.Entity<Scheduledtask>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("scheduledtasks");
+
+            entity.HasIndex(e => e.UserId, "UserId");
+
+            entity.HasIndex(e => new { e.DeviceId, e.DeviceType }, "idx_device");
+
+            entity.HasIndex(e => e.StartTime, "idx_starttime");
+
+            entity.Property(e => e.DeviceId).HasMaxLength(50);
+            entity.Property(e => e.DeviceType).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(45);
+            entity.Property(e => e.Payload).HasColumnType("json");
+            entity.Property(e => e.Recurrence).HasColumnType("enum('None','Daily','Weekly')");
+            entity.Property(e => e.RecurrenceDay).HasColumnType("enum('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday')");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+            entity.Property(e => e.Target).HasColumnType("enum('DeviceId','DeviceType')");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Scheduledtasks)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("scheduledtasks_ibfk_1");
         });
 
         modelBuilder.Entity<User>(entity =>

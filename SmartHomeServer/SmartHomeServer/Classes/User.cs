@@ -26,4 +26,6 @@ public partial class User
     public bool? IsActive { get; set; }
 
     public virtual Creditcard? CreditCard { get; set; }
+
+    public virtual ICollection<Scheduledtask> Scheduledtasks { get; set; } = new List<Scheduledtask>();
 }

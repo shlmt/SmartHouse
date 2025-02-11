@@ -38,7 +38,11 @@ builder.Services.AddSignalR()
            .Add(new JsonStringEnumConverter());
     });
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("key").Value);
 
