@@ -2,7 +2,7 @@ import axios from 'axios'
 import { makeAutoObservable } from 'mobx'
 import User from '../models/User'
 
-axios.defaults.baseURL = process.env.REACT_APP_API_URL ?? "https://localhost:7231/api/auth"
+axios.defaults.baseURL = process.env.REACT_APP_API_URL ?? "https://localhost:7231/api"
 
 axios.interceptors.response.use((response) => {
   return response
@@ -37,7 +37,7 @@ class Auth {
 
     getUserDetails = async () => {
         if(this.user.username) return
-        const res = await axios.get('/', {withCredentials:true})
+        const res = await axios.get('/auth', {withCredentials:true})
         if(res?.status==200){
             const user = new User(res.data)
             if(user instanceof User){
@@ -50,7 +50,7 @@ class Auth {
 
     login = async (email, password, rememberMe=false) => {
         if(email && password){
-            const res = await axios.post('/login', {email,password,rememberMe}, {withCredentials:true})
+            const res = await axios.post('/auth/login', {email,password,rememberMe}, {withCredentials:true})
             if(res?.status==200){
                 const user = new User(res.data)
                 if(user instanceof User){
@@ -67,7 +67,7 @@ class Auth {
 
     register = async (username, email, password) => {
         if(email && username && password){
-            const res = await axios.post('/register', {username,email,password}, {withCredentials:true})
+            const res = await axios.post('/auth/register', {username,email,password}, {withCredentials:true})
             if(res?.status==200){
                 const user = new User(res.data)
                 if(user instanceof User){
@@ -82,11 +82,12 @@ class Auth {
     }
 
     logout = async()=>{
-        const res = await axios.get('/logout')
+        const res = await axios.get('/auth/logout')
         if(res?.status==200){
             sessionStorage.removeItem('user')
             this.user = {}
             this.isLoggedIn = false
+            sessionStorage.clear()
         }
         else {
             console.log("error in logout")
