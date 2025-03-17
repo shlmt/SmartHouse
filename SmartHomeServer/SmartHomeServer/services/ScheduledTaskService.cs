@@ -69,7 +69,12 @@ namespace SmartHomeServer.services
                                     }
                                 }
                             }
+                            if(task.Recurrence == "None")
+                            {
+                                dbContext.Scheduledtasks.Remove(task);
+                            }
                         }
+                        await dbContext.SaveChangesAsync(stoppingToken);
                     }
                 }
                 catch (Exception ex)
