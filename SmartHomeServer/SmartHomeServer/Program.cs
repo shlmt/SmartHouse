@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SmartHomeServer;
 using SmartHomeServer.Hubs;
+using SmartHomeServer.services;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -72,6 +73,8 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(key),
         };
     });
+
+builder.Services.AddHostedService<ScheduledTaskService>();
 
 var app = builder.Build();
 

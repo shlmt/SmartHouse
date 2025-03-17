@@ -17,6 +17,7 @@ import Logout from "my-components/Logout"
 import AlertManager from "my-components/AlertManager"
 import Billing from "pages/Billing"
 import Upgrade from "pages/Upgrade"
+import ScheduleTasks from "pages/ScheduleTasks"
 
 const App = (props) => {
   const isLoggedIn = props.authStore.isLoggedIn
@@ -64,6 +65,7 @@ const App = (props) => {
               <Route path="/profile" element={<Profile user={user}/>}/>
               <Route path="/profile/upgrade" element={<Upgrade/>}/>
               <Route path="/billing" element={isPro ? <Billing/> : <Navigate to="../profile/upgrade" />}/>
+              <Route path="/schedule" element={isPro ? <ScheduleTasks/> : <Navigate to="../profile/upgrade" />}/>
               <Route path="/scenario" element={isPro ? <>scenario</> : <Navigate to="../profile/upgrade" />}/>
               <Route path="/history" element={isPro ? <>history</> : <Navigate to="../profile/upgrade" />}/>
               <Route path="/logout" element={<Logout logout={props.authStore.logout}/>}/>

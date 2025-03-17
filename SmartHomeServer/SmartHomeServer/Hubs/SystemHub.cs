@@ -5,7 +5,6 @@ using SmartHomeServer.Classes;
 using System;
 using System.Collections.Concurrent;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartHomeServer.Hubs
 {
@@ -116,20 +115,20 @@ namespace SmartHomeServer.Hubs
 
         public async Task NotifyActuatorChange(Operation action, Actuator deviceData)
         {
-            string systemId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string systemId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(systemId))
             {
                 await Clients.Caller.SendAsync("Auth Error", "invalid systemId. please login");
                 return;
             }
-            if (deviceData == null)
+            if (deviceData == null && Clients?.Caller != null)
             {
                 await Clients.Caller.SendAsync("Error", "deviceData is null.");
                 return;
             }
             if (SystemConnections.TryGetValue(systemId, out var pair))
             {
-                if(pair.house != null && pair.house != Context.ConnectionId)
+                if(pair.house != null && pair.house != Context?.ConnectionId)
                 {
                     await Clients.Client(pair.house).SendAsync("ReceiveDataChangeNotification", action, DeviceType.Actuator.ToString(), deviceData);
                 }
@@ -283,5 +282,21 @@ namespace SmartHomeServer.Hubs
             return base.OnConnectedAsync();
         }
 
+        internal string? getHouseConnId(string systemId)
+        {
+            if (!string.IsNullOrEmpty(systemId) && SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                return pair.house;
+            }
+            return null;
+        }
+        internal (string house, List<string> dashboards) getSystemConnId(string systemId)
+        {
+            if (!string.IsNullOrEmpty(systemId) && SystemConnections.TryGetValue(systemId, out var pair))
+            {
+                return pair;
+            }
+            return (null, null);
+        }
     }
 }

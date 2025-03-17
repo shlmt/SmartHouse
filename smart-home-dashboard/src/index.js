@@ -9,14 +9,16 @@ import devicesStore from "stores/devices";
 import authStore from "stores/auth";
 import alertStore from "stores/alert";
 import { SoftUIControllerProvider } from 'context';
+import scheduledTasksStore from 'stores/scheduleTasksStore';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const stores = {
-  devicesStore: devicesStore,
-  authStore: authStore,
-  alertStore: alertStore
+  devicesStore,
+  authStore,
+  alertStore,
+  scheduledTasksStore
 };
 
 root.render(

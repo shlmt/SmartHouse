@@ -72,6 +72,7 @@ public class ScheduledTasksController : ControllerBase
         {
             Scheduledtask task = _autoMapper.Map<ScheduledTaskDTO, Scheduledtask>(taskInput);
             task.UserId = new Guid(systemId);
+            if (!task.IsOn) task.Payload = null;
             _context.Scheduledtasks.Add(task);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetScheduledtask), new { id = task.Id }, task);
@@ -91,6 +92,7 @@ public class ScheduledTasksController : ControllerBase
         if (string.IsNullOrEmpty(systemId)) return Unauthorized();
         Scheduledtask task = _autoMapper.Map<ScheduledTaskDTO, Scheduledtask>(taskInput);
         task.UserId = new Guid(systemId);
+        if (!task.IsOn) task.Payload = null;
         try
         {
             _context.Entry(task).State = EntityState.Modified;

@@ -13,8 +13,8 @@ const Actuator=(props)=>{
     const [openDialog, setOpenDialog] = useState(false)
 
     useEffect(()=>{
-      selectedActuator.isOn && setTurn(selectedActuator.isOn)
-    },[selectedActuator])
+      selectedActuator.isOn != undefined && setTurn(selectedActuator.isOn)
+    },[selectedActuator, actuators])
 
     useEffect(()=>{
       selectedActuator?.id && setSelectedActuator(actuators.find(a=>a.id==selectedActuator.id) ?? selectedActuator)

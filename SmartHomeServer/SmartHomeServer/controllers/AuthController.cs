@@ -48,7 +48,7 @@ namespace SmartHomeServer.controllers
             {
                 return BadRequest("username & password can't be null or empty");
             }
-            User user = await _dbContext.Users.Where(u => u.Email == loginUser.Email).FirstOrDefaultAsync();
+            User user = await _dbContext.Users.Where(u => u.Email == loginUser.Email).Include(u => u.CreditCard).FirstOrDefaultAsync();
             if (user != null)
             {
                 bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password);
@@ -118,7 +118,10 @@ namespace SmartHomeServer.controllers
 
         private async Task<User> GetUserById(Guid id)
         {
-            return await _dbContext.Users.FindAsync(id);
+            var a= await _dbContext.Users
+                .Include(u => u.CreditCard)
+                .FirstOrDefaultAsync(u => u.Id == id);
+            return a;
         }
 
         private int GetStrengthPassword(string pass)

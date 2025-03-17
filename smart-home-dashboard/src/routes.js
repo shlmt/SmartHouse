@@ -2,7 +2,8 @@ import CreditCard from "examples/Icons/CreditCard";
 import Profile from "pages/Profile";
 import Billing from "pages/Billing";
 import Dashboard from "pages/Dashboard";
-import { AutoGraphRounded, DashboardRounded, Person4Rounded, Timelapse } from "@mui/icons-material";
+import { AutoGraphRounded, DashboardRounded, Person4Rounded, Schedule, Timelapse } from "@mui/icons-material";
+import ScheduleTasks from "pages/ScheduleTasks";
 
 const routes = [
     {
@@ -13,6 +14,16 @@ const routes = [
       icon: <DashboardRounded size="12px" />,
       component: <Dashboard/>,
       noCollapse: true,
+    },
+    {
+      type: "collapse",
+      name: "Schedule",
+      key: "schedule",
+      route: "/schedule",
+      icon: <Schedule size="12px" />,
+      component: <ScheduleTasks/>,
+      noCollapse: true,
+      pro: true,
     },
     {
       type: "collapse",

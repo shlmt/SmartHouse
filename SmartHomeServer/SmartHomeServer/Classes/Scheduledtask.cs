@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SmartHomeServer.Classes;
+﻿namespace SmartHomeServer.Classes;
 
 public partial class Scheduledtask
 {

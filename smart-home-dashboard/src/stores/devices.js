@@ -56,21 +56,26 @@ class Devices {
                                 break
                             case "Update":
                                 const index = this[type.toLowerCase() + 's'].findIndex(d => d.id === device.id)
-                                if (index !== -1) this[type.toLowerCase() + 's'][index] = { ...device }
-                                break
+                                if (index !== -1) {
+                                    this[type.toLowerCase() + 's'][index] = {
+                                        ...this[type.toLowerCase() + 's'][index], 
+                                        ...Object.fromEntries(Object.entries(device).filter(([_, value]) => value !== null))
+                                    }
+                                }                                                                break
                         default:
                             console.log("Error ReceiveDataChangeNotification: Unknown action :",action)                        
                     }
                 })
 
                 conn.on("RecieveActuatorChangeAll",(name,isOn,status)=>{
-                    this.actuators.forEach(a=>{
-                        if(a.name==name){
-                            status && Object.entries(status).forEach(([key, value]) => {
-                                if (value !== null) a.status[key] = value
-                            })
-                            if(isOn!=null) a.isOn = isOn
+                    this.actuators = this.actuators.map(a=>{
+                        return a.name == name ? 
+                        {
+                            ...a,
+                            status: {...a.status, ...Object.fromEntries(Object.entries(status).filter(([_, value]) => value !== null))},
+                            isOn: isOn!=null ? isOn : a.isOn
                         }
+                        : a
                     })
                 })
 
