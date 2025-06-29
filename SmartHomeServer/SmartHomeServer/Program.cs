@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseMySql(
-        builder.Configuration.GetConnectionString("localDB"),
+        builder.Configuration.GetConnectionString("db"),
         ServerVersion.Parse("8.0.40-mysql")
     ));
 

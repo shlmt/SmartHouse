@@ -6,7 +6,7 @@ using SmartHomeServer;
 using SmartHomeServer.Classes;
 using System.Security.Claims;
 
-[Authorize(Roles = "Pro")]
+[Authorize(Roles = "pro")]
 [Route("api/[controller]")]
 [ApiController]
 public class ScheduledTasksController : ControllerBase
