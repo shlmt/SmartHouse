@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Smart Home Control System</title>
+		<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.5/dist/browser/signalr.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				color: #333;
+				font-size: 14px;
+			}
+
+			.login-screen {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.9);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 1000;
+			}
+
+			.login-card {
+				background: white;
+				padding: 30px;
+				border-radius: 12px;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+				text-align: center;
+				max-width: 320px;
+				width: 90%;
+			}
+
+			.login-card h2 {
+				margin-bottom: 20px;
+				color: #667eea;
+				font-size: 24px;
+			}
+
+			.login-form input {
+				width: 100%;
+				padding: 12px;
+				margin: 8px 0;
+				border: 1px solid #ddd;
+				border-radius: 6px;
+				font-size: 14px;
+			}
+
+			.login-form input:focus {
+				outline: none;
+				border-color: #667eea;
+			}
+
+			.login-btn {
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(45deg, #667eea, #764ba2);
+				color: white;
+				border: none;
+				border-radius: 6px;
+				font-size: 16px;
+				cursor: pointer;
+				margin-top: 15px;
+			}
+
+			.login-btn:hover {
+				opacity: 0.9;
+			}
+
+			.main-container {
+				display: none;
+				padding: 15px;
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			.header {
+				text-align: center;
+				margin-bottom: 20px;
+				color: #2d3e88;
+			}
+
+			.header h1 {
+				font-size: 28px;
+				margin-bottom: 10px;
+				text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+			}
+
+			.status-bar {
+				display: flex;
+				justify-content: center;
+				gap: 15px;
+				margin-bottom: 20px;
+			}
+
+			.status-item {
+				background: rgba(255, 255, 255, 0.9);
+				padding: 8px 15px;
+				border-radius: 8px;
+				text-align: center;
+				font-size: 12px;
+			}
+
+			.dashboard {
+				display: grid;
+				grid-template-columns: 2fr 1fr;
+				gap: 20px;
+			}
+
+			.house-layout {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 12px;
+				padding: 20px;
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			}
+
+			.room {
+				margin-bottom: 20px;
+				padding: 15px;
+				background: #f8f9fa;
+				border-radius: 8px;
+				border-left: 3px solid #667eea;
+			}
+
+			.room-title {
+				font-size: 16px;
+				font-weight: bold;
+				margin-bottom: 10px;
+				color: #667eea;
+			}
+
+			.devices-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+				gap: 10px;
+			}
+
+			.device {
+				background: white;
+				border-radius: 8px;
+				padding: 12px;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				transition: all 0.2s ease;
+				cursor: pointer;
+				border: 2px solid transparent;
+				text-align: center;
+				position: relative;
+			}
+
+			.device:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			.device.active {
+				border-color: #4caf50;
+				background: linear-gradient(135deg, #e8f5e8, #ffffff);
+			}
+
+			.device-icon {
+				font-size: 24px;
+				margin-bottom: 6px;
+			}
+
+			.device-name {
+				font-weight: bold;
+				margin-bottom: 4px;
+				font-size: 13px;
+			}
+
+			.device-status {
+				font-size: 11px;
+				color: #666;
+				margin-bottom: 8px;
+			}
+
+			.device-controls {
+				display: flex;
+				justify-content: center;
+				gap: 4px;
+				flex-wrap: wrap;
+			}
+
+			.control-btn {
+				padding: 4px 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				background: white;
+				cursor: pointer;
+				font-size: 10px;
+				transition: all 0.2s;
+			}
+
+			.control-btn:hover {
+				background: #667eea;
+				color: white;
+			}
+
+			.control-input {
+				width: 40px;
+				padding: 2px 4px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 10px;
+				text-align: center;
+			}
+
+			.meters-panel {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 12px;
+				padding: 20px;
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			}
+
+			.meters-title {
+				font-size: 16px;
+				font-weight: bold;
+				margin-bottom: 15px;
+				color: #667eea;
+				text-align: center;
+			}
+
+			.meter {
+				margin-bottom: 15px;
+				padding: 12px;
+				background: #f8f9fa;
+				border-radius: 8px;
+				text-align: center;
+			}
+
+			.meter-gauge {
+				width: 80px;
+				height: 80px;
+				border-radius: 50%;
+				background: conic-gradient(
+					#4caf50 0deg,
+					#4caf50 var(--gauge-value),
+					#e0e0e0 var(--gauge-value),
+					#e0e0e0 360deg
+				);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0 auto 8px;
+				position: relative;
+			}
+
+			.meter-gauge::before {
+				content: '';
+				width: 60px;
+				height: 60px;
+				background: white;
+				border-radius: 50%;
+				position: absolute;
+			}
+
+			.meter-value {
+				font-size: 14px;
+				font-weight: bold;
+				z-index: 1;
+				position: relative;
+			}
+
+			.meter-name {
+				font-weight: bold;
+				margin-bottom: 4px;
+				font-size: 12px;
+			}
+
+			.alerts-panel {
+				margin-top: 15px;
+				padding: 15px;
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 12px;
+				box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			}
+
+			.alert {
+				padding: 10px;
+				margin: 8px 0;
+				border-radius: 6px;
+				animation: pulse 1s infinite;
+				font-size: 12px;
+			}
+
+			.alert.fire {
+				background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+				color: white;
+			}
+
+			.alert.security {
+				background: linear-gradient(45deg, #ffa726, #ffb74d);
+				color: white;
+			}
+
+			@keyframes pulse {
+				0%,
+				100% {
+					transform: scale(1);
+				}
+				50% {
+					transform: scale(1.02);
+				}
+			}
+
+			.event-log {
+				position: fixed;
+				bottom: 15px;
+				right: 15px;
+				width: 280px;
+				max-height: 180px;
+				background: rgba(0, 0, 0, 0.9);
+				color: white;
+				border-radius: 8px;
+				padding: 12px;
+				overflow-y: auto;
+				font-size: 11px;
+				z-index: 100;
+			}
+
+			.event {
+				padding: 4px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+				opacity: 0;
+				animation: fadeIn 0.5s ease forwards;
+			}
+
+			.event.server-change {
+				color: #4caf50;
+			}
+
+			.event.local-change {
+				color: #2196f3;
+			}
+
+			@keyframes fadeIn {
+				to {
+					opacity: 1;
+				}
+			}
+
+			.device-animation {
+				animation: deviceUpdate 0.6s ease;
+			}
+
+			@keyframes deviceUpdate {
+				0% {
+					transform: scale(1);
+				}
+				50% {
+					transform: scale(1.05);
+					box-shadow: 0 0 15px #4caf50;
+				}
+				100% {
+					transform: scale(1);
+				}
+			}
+
+			@media (max-width: 768px) {
+				.dashboard {
+					grid-template-columns: 1fr;
+				}
+
+				.devices-grid {
+					grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+				}
+
+				.event-log {
+					width: 250px;
+					max-height: 150px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="login-screen" id="loginScreen">
+			<div class="login-card">
+				<h2>🏠 Smart Home</h2>
+				<div class="login-form">
+					<input type="email" id="email" placeholder="Email" value="user@example.com" />
+					<input type="password" id="password" placeholder="Password" value="user@example.com" />
+					<button class="login-btn" onclick="login()">Login</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="main-container" id="mainContainer">
+			<div class="header">
+				<h1>🏠 Smart Home Control</h1>
+				<div class="status-bar">
+					<div class="status-item">
+						<div>📡 Connection</div>
+						<div id="connectionStatus">Connecting...</div>
+					</div>
+					<div class="status-item">
+						<div>🔌 Active Devices</div>
+						<div id="activeDevices">0</div>
+					</div>
+					<div class="status-item">
+						<div>🕐 Last Update</div>
+						<div id="lastUpdate">--:--</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="dashboard">
+				<div class="house-layout">
+					<div id="roomsContainer"></div>
+				</div>
+
+				<div>
+					<div class="meters-panel">
+						<div class="meters-title">Meters</div>
+						<div id="metersContainer"></div>
+					</div>
+
+					<div class="alerts-panel">
+						<div class="meters-title">Alerts</div>
+						<div id="alertsContainer">
+							<div style="text-align: center; color: #666; padding: 15px; font-size: 12px">🔒 System Secure</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="event-log" id="eventLog">
+			<div style="font-weight: bold; margin-bottom: 8px">📋 Event Log</div>
+			<div id="eventsContainer"></div>
+		</div>
+
+		<script>
+			const base_url = 'https://smarthouse-server.onrender.com'
+			let connection
+			let devices = [
+				{
+					id: 'bbb',
+					name: 'air conditioner',
+					room: 'bedroom',
+					isOn: true,
+					status: { tmp: '22', isTurbo: 'false', fun: '2', mode: 'warm' }
+				},
+				{ id: 'aaa', name: 'light', room: 'bedroom', isOn: false, status: { tmp: '4000', power: '100' } },
+				{ id: 'eee', name: 'smart door', room: 'bedroom', isOn: false, status: { percents: '32%' } },
+				{ id: 'dd', name: 'smart window', room: 'bedroom', isOn: false, status: { percents: '32%' } },
+				{ id: 'ff', name: 'robot vacuum', room: 'bedroom', isOn: false },
+				{ id: 'ccc', name: 'light', room: 'kitchen', isOn: true, status: { tmp: '3000', power: '20' } },
+				{ id: 'ggg', name: 'smart fridge', room: 'kitchen', isOn: true, status: { tmp: '4', power: '150' } },
+				{ id: 'hhh', name: 'oven', room: 'kitchen', isOn: false, status: { tmp: '180', timer: '0' } },
+				{ id: 'iii', name: 'tv', room: 'living room', isOn: false, status: { volume: '50', channel: '1' } },
+				{ id: 'jjj', name: 'stereo', room: 'living room', isOn: false, status: { volume: '30', bass: '5' } },
+				{ id: 'kkk', name: 'smoke detector', room: 'kitchen', isOn: true, status: { level: '0' } },
+				{ id: 'lll', name: 'alarm system', room: 'entrance', isOn: true, status: { armed: 'true' } },
+				{ id: 'mmm', name: 'garden lights', room: 'outdoor', isOn: false, status: { brightness: '80' } },
+				{ id: 'nnn', name: 'sprinkler', room: 'garden', isOn: false, status: { duration: '30', zone: '1' } }
+			]
+
+			let meters = [
+				{ id: 'power', name: 'power', value: '2.3', unit: 'kW', max: 5 },
+				{ id: 'water', name: 'water', value: '150', unit: 'L', max: 500 },
+				{ id: 'gas', name: 'gas', value: '12', unit: 'm³', max: 50 }
+			]
+
+			const deviceIcons = {
+				'air conditioner': '❄️',
+				light: '💡',
+				'smart door': '🚪',
+				'smart window': '🪟',
+				'robot vacuum': '🤖',
+				'smart fridge': '🧊',
+				oven: '🔥',
+				tv: '📺',
+				stereo: '🔊',
+				'smoke detector': '🔍',
+				'alarm system': '🚨',
+				'garden lights': '🌟',
+				sprinkler: '💧'
+			}
+
+			const roomIcons = {
+				bedroom: '🛏️',
+				kitchen: '🍳',
+				'living room': '🛋️',
+				entrance: '🏠',
+				outdoor: '🌳',
+				garden: '🌱'
+			}
+
+			function login() {
+				const email = document.getElementById('email').value
+				const password = document.getElementById('password').value
+
+				fetch(`${base_url}/api/auth/login`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email, password, rememberMe: true }),
+					credentials: 'include'
+				})
+					.then((response) => response.json())
+					.then((data) => {
+						console.log('Login success:', data)
+						document.getElementById('loginScreen').style.display = 'none'
+						document.getElementById('mainContainer').style.display = 'block'
+						initializeSignalR()
+					})
+					.catch((error) => {
+						console.error('Login error:', error)
+						alert('Login failed')
+					})
+			}
+
+			function initializeSignalR() {
+				connection = new signalR.HubConnectionBuilder()
+					.withUrl(`${base_url}/systemHub`, { withCredentials: true })
+					.build()
+
+				connection.on('Connected', (msg) => {
+					logEvent(`🔗 Connected: ${msg}`, 'system')
+					updateConnectionStatus('Connected', true)
+				})
+
+				connection.on('ReceiveMessage', (message) => {
+					logEvent(`📨 Message: ${message}`, 'system')
+				})
+
+				connection.on('DashboardConnected', (dashboardId) => {
+					connection.invoke('SendDataToSpecificDashboard', dashboardId, devices, meters)
+					logEvent(`📊 Dashboard connected: ${dashboardId}`, 'system')
+				})
+
+				connection.on('ReceiveDataChangeNotification', (action, type, device) => {
+					logEvent(`🔄 Server: ${action} ${type} ${device.name || device.id}`, 'server')
+					handleDeviceChange(action, type, device)
+				})
+
+				connection.on('RecieveActuatorChangeAll', (deviceType, isOn, status) => {
+					logEvent(`🔄 Server: Bulk ${deviceType} -> ${isOn ? 'ON' : 'OFF'}`, 'server')
+					handleBulkDeviceChange(deviceType, isOn, status, 'server')
+				})
+
+				connection.on('Error', (message) => {
+					logEvent(`❌ Error: ${message}`, 'system')
+					updateConnectionStatus('Error', false)
+				})
+
+				connection
+					.start()
+					.then(() => {
+						connection.invoke('connectHouse', devices, meters)
+						logEvent('🏠 House connected to system', 'system')
+						renderDevices()
+						renderMeters()
+						updateStats()
+
+						setTimeout(() => {
+							connection.invoke('SendMessage', 'HOUSE', 'Hello from Smart House!')
+						}, 1000)
+
+						simulateDeviceActivity()
+					})
+					.catch((err) => {
+						console.error('Connection error:', err)
+						updateConnectionStatus('Connection Failed', false)
+					})
+			}
+
+			function handleDeviceChange(action, type, deviceData) {
+				if (action === 'Update') {
+					const deviceIndex = devices.findIndex((d) => d.id === deviceData.id)                    
+					if (deviceIndex !== -1) {
+						devices[deviceIndex] = { ...devices[deviceIndex], ...deviceData }
+						animateDeviceUpdate(deviceData.id)
+						renderDevices()
+						updateStats()
+					}
+				}
+                else if (action === 'add') {
+					devices.push(deviceData)
+					renderDevices()
+					updateStats()
+				} else if (action === 'remove') {
+					devices = devices.filter((d) => d.id !== deviceData.id)
+					renderDevices()
+					updateStats()
+				}
+			}
+
+			function handleBulkDeviceChange(deviceType, isOn, status, source) {
+				devices.forEach((device) => {
+					if (device.name === deviceType) {
+						device.isOn = isOn
+						if (status) device.status = { ...device.status, ...status }
+						animateDeviceUpdate(device.id)
+					}
+				})
+				renderDevices()
+				updateStats()
+			}
+
+			function renderDevices() {
+				const container = document.getElementById('roomsContainer')
+				const roomsMap = {}
+
+				devices.forEach((device) => {
+					if (!roomsMap[device.room]) roomsMap[device.room] = []
+					roomsMap[device.room].push(device)
+				})
+
+				container.innerHTML = Object.keys(roomsMap)
+					.map(
+						(room) => `
+                <div class="room">
+                    <div class="room-title">${roomIcons[room] || '🏠'} ${room}</div>
+                    <div class="devices-grid">
+                        ${roomsMap[room]
+													.map(
+														(device) => `
+                            <div class="device ${device.isOn ? 'active' : ''}" id="device-${device.id}">
+                                <div class="device-icon">${deviceIcons[device.name] || '⚡'}</div>
+                                <div class="device-name">${device.name}</div>
+                                <div class="device-status">
+                                    ${device.isOn ? '🟢 ON' : '🔴 OFF'}
+                                    ${formatDeviceStatus(device)}
+                                </div>
+                                ${renderDeviceControls(device)}
+                            </div>
+                        `
+													)
+													.join('')}
+                    </div>
+                </div>
+            `
+					)
+					.join('')
+			}
+
+			function formatDeviceStatus(device) {
+				if (!device.status) return ''
+
+				const status = device.status
+				let statusText = '<br>'
+
+				if (status.tmp) {
+					if (device.name === 'light') {
+						statusText += `🌡️ ${status.tmp}K `
+					} else if (device.name === 'air conditioner') {
+						statusText += `🌡️ ${status.tmp}°C `
+					} else if (device.name === 'smart fridge') {
+						statusText += `❄️ ${status.tmp}°C `
+					} else if (device.name === 'oven') {
+						statusText += `🔥 ${status.tmp}°C `
+					}
+				}
+
+				if (status.power) statusText += `⚡ ${status.power}% `
+				if (status.percents) statusText += `📊 ${status.percents} `
+				if (status.fun) statusText += `💨 ${status.fun} `
+				if (status.mode) statusText += `🔄 ${status.mode} `
+				if (status.volume) statusText += `🔊 ${status.volume} `
+				if (status.brightness) statusText += `☀️ ${status.brightness}% `
+
+				return statusText
+			}
+
+			function renderDeviceControls(device) {
+				const controls = []
+
+				if (device.name === 'air conditioner' && device.status) {
+					if (device.status.tmp) {
+						controls.push(`<button class="control-btn" onclick="adjustDevice('${device.id}', 'tmp', -1)">-</button>`)
+						controls.push(`<span style="font-size: 10px; margin: 0 4px;">${device.status.tmp}°C</span>`)
+						controls.push(`<button class="control-btn" onclick="adjustDevice('${device.id}', 'tmp', 1)">+</button>`)
+					}
+					if (device.status.fun) {
+						controls.push(`<button class="control-btn" onclick="adjustDevice('${device.id}', 'fun', -1)">Fan-</button>`)
+						controls.push(`<button class="control-btn" onclick="adjustDevice('${device.id}', 'fun', 1)">Fan+</button>`)
+					}
+					if (device.status.mode) {
+						controls.push(
+							`<button class="control-btn" onclick="toggleMode('${device.id}')">${device.status.mode}</button>`
+						)
+					}
+				}
+
+				if (device.name === 'light' && device.status) {
+					if (device.status.power) {
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'power', -10)">Dim</button>`
+						)
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'power', 10)">Bright</button>`
+						)
+					}
+					if (device.status.tmp) {
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'tmp', -500)">Warm</button>`
+						)
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'tmp', 500)">Cool</button>`
+						)
+					}
+				}
+
+				if (device.name === 'tv' && device.status) {
+					if (device.status.volume) {
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'volume', -5)">Vol-</button>`
+						)
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'volume', 5)">Vol+</button>`
+						)
+					}
+					if (device.status.channel) {
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'channel', -1)">Ch-</button>`
+						)
+						controls.push(
+							`<button class="control-btn" onclick="adjustDevice('${device.id}', 'channel', 1)">Ch+</button>`
+						)
+					}
+				}
+
+				controls.unshift(
+					`<button class="control-btn" onclick="toggleDevice('${device.id}')">${device.isOn ? 'OFF' : 'ON'}</button>`
+				)
+
+				return controls.length ? `<div class="device-controls">${controls.join('')}</div>` : ''
+			}
+
+			function renderMeters() {
+				const container = document.getElementById('metersContainer')
+				container.innerHTML = meters
+					.map((meter) => {
+						const percentage = (meter.value / meter.max) * 100
+						return `
+                    <div class="meter">
+                        <div class="meter-gauge" style="--gauge-value: ${percentage * 3.6}deg">
+                            <div class="meter-value">${meter.value}</div>
+                        </div>
+                        <div class="meter-name">${meter.name}</div>
+                        <div>${meter.unit}</div>
+                    </div>
+                `
+					})
+					.join('')
+			}
+
+			function toggleDevice(deviceId) {
+				const device = devices.find((d) => d.id === deviceId)
+				if (device) {
+					device.isOn = !device.isOn
+					connection.invoke('NotifyActuatorChange', 'update', device)
+					logEvent(`🔄 Local: ${device.isOn ? 'ON' : 'OFF'} ${device.name}`, 'local')
+					animateDeviceUpdate(deviceId)
+					renderDevices()
+					updateStats()
+				}
+			}
+
+			function adjustDevice(deviceId, property, delta) {
+				const device = devices.find((d) => d.id === deviceId)
+				if (device && device.status && device.status[property]) {
+					const currentValue = parseInt(device.status[property])
+					let newValue = currentValue + delta
+
+					if (property === 'tmp' && device.name === 'air conditioner') {
+						newValue = Math.max(16, Math.min(30, newValue))
+					} else if (property === 'tmp' && device.name === 'light') {
+						newValue = Math.max(2000, Math.min(6500, newValue))
+					} else if (property === 'power') {
+						newValue = Math.max(0, Math.min(100, newValue))
+					} else if (property === 'fun') {
+						newValue = Math.max(1, Math.min(5, newValue))
+					} else if (property === 'volume') {
+						newValue = Math.max(0, Math.min(100, newValue))
+					} else if (property === 'channel') {
+						newValue = Math.max(1, Math.min(999, newValue))
+					}
+
+					device.status[property] = newValue.toString()
+					connection.invoke('NotifyActuatorChange', 'update', device)
+					logEvent(`🔄 Local: ${device.name} ${property} -> ${newValue}`, 'local')
+					animateDeviceUpdate(deviceId)
+					renderDevices()
+				}
+			}
+
+			function toggleMode(deviceId) {
+				const device = devices.find((d) => d.id === deviceId)
+				if (device && device.status && device.status.mode) {
+					const modes = ['warm', 'cool', 'auto', 'fan']
+					const currentIndex = modes.indexOf(device.status.mode)
+					device.status.mode = modes[(currentIndex + 1) % modes.length]
+					connection.invoke('NotifyActuatorChange', 'update', device)
+					logEvent(`🔄 Local: ${device.name} mode -> ${device.status.mode}`, 'local')
+					animateDeviceUpdate(deviceId)
+					renderDevices()
+				}
+			}
+
+			function animateDeviceUpdate(deviceId) {
+				const element = document.getElementById(`device-${deviceId}`)
+				if (element) {
+					element.classList.add('device-animation')
+					setTimeout(() => element.classList.remove('device-animation'), 600)
+				}
+			}
+
+			function updateStats() {
+				const activeCount = devices.filter((d) => d.isOn).length
+				document.getElementById('activeDevices').textContent = activeCount
+				document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString()
+			}
+
+			function updateConnectionStatus(status, isConnected) {
+				const element = document.getElementById('connectionStatus')
+				element.textContent = status
+				element.style.color = isConnected ? '#4CAF50' : '#f44336'
+			}
+
+			function logEvent(message, source) {
+				const container = document.getElementById('eventsContainer')
+				const eventDiv = document.createElement('div')
+				eventDiv.className = `event ${source === 'server' ? 'server-change' : source === 'local' ? 'local-change' : ''}`
+				eventDiv.textContent = `${new Date().toLocaleTimeString()} - ${message}`
+				container.insertBefore(eventDiv, container.firstChild)
+
+				if (container.children.length > 12) {
+					container.removeChild(container.lastChild)
+				}
+			}
+			// old code
+			function simulateDeviceActivity() {
+				setInterval(() => {
+					if (Math.random() < 0.3) {
+						const randomDevice = devices[Math.floor(Math.random() * devices.length)]
+						if (randomDevice.name === 'חיישן עשן' && Math.random() < 0.05) {
+							showAlert('fire', 'מטבח', 'זוהה עשן במטבח!')
+							if (connection) {
+								connection.invoke("NotifySensorAlert","fire","dining room",'call 102!!!')
+							}
+						}
+					}
+
+					meters.forEach((meter) => {
+						const change = (Math.random() - 0.5) * 0.2
+						meter.value = Math.max(0, parseFloat(meter.value) + change).toFixed(1)
+						if (connection) {
+							connection.invoke('NotifyMeterChange',"update", meter)
+						}
+					})
+					renderMeters()
+				}, 5000)
+			}
+
+			function showAlert(type, location, message) {
+				const container = document.getElementById('alertsContainer')
+				const alert = document.createElement('div')
+				alert.className = `alert ${type}`
+				alert.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">
+                    ${type === 'fire' ? '🔥 אזעקת אש' : '⚠️ התראת אבטחה'}
+                </div>
+                <div>📍 ${location}</div>
+                <div>${message}</div>
+            `
+				container.appendChild(alert)
+
+				logEvent(`🚨 ${message}`)
+				connection.invoke('NotifySensorAlert', type, location, message)
+
+				setTimeout(() => alert.remove(), 10000)
+			}
+
+			window.addEventListener('load', () => {
+				updateStats()
+			})
+		</script>
+	</body>
+</html>
