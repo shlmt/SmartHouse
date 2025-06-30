@@ -22,7 +22,7 @@ import ScheduleTasks from "pages/ScheduleTasks"
 const App = (props) => {
   const isLoggedIn = props.authStore.isLoggedIn
   const user = props.authStore.user
-  const isPro = user.creditCard && user.role=='Pro' || false
+  const isPro = (user.creditCard && (user.role.toLowerCase() === 'pro')) || false
 
   const [controller, dispatch] = useSoftUIController()
   const { miniSidenav } = controller

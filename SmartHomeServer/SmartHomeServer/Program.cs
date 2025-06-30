@@ -20,14 +20,14 @@ builder.Services.AddCors(options =>
         var env = builder.Environment;
         if (env.IsDevelopment())
         {
-            policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+            policy.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://127.0.0.1:5500")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
         }
         else
         {
-            policy.WithOrigins("https://smarthouse-dashboard.onrender.com")
+            policy.WithOrigins("https://smarthouse-dashboard.onrender.com", "https://smarthouse-house.onrender.com")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();

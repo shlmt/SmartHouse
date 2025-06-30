@@ -4,7 +4,7 @@ import auth from "./auth"
 import Actuator from "../models/Actuator"
 import alert from "./alert"
 
-const url = process.env.HUB_ADDRESS ?? "https://localhost:7231/systemHub"
+const url = (process.env.REACT_APP_API_URL ?? "https://localhost:7231") + "/systemHub"
 const conn = new signalR.HubConnectionBuilder()
             .withUrl(url, { withCredentials:true })
             .withAutomaticReconnect()

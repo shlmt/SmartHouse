@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { makeAutoObservable } from "mobx"
 
-axios.defaults.baseURL = process.env.REACT_APP_API_URL ?? "https://localhost:7231/api"
+axios.defaults.baseURL = (process.env.REACT_APP_API_URL ?? "https://localhost:7231") + '/api'
 
 axios.interceptors.response.use((response) => {
   return response
